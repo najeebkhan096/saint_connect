@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "184814145544",
+    "project_id": "saintconnect-9c0c9",
+    "storage_bucket": "saintconnect-9c0c9.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:184814145544:android:c1489c6c663a7ee59241bd",
+        "android_client_info": {
+          "package_name": "com.example.saintconnect"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "184814145544-ds1ri48v2ljlthli5o0crnhj6092d7mr.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD-2qfrGoTXoxEu7gv9dF79n7TobEky2X0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "184814145544-ds1ri48v2ljlthli5o0crnhj6092d7mr.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

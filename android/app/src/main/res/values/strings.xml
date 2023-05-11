@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+<string name="app_name">Saint Connect</string>
+<string name="facebook_app_id">3457629984525430</string>
+<string name="fb_login_protocol_scheme">fb3457629984525430</string>
+    <string name="facebook_client_token">411ba6c61a8a6a994e7b34c4319af346</string>
+</resources>
