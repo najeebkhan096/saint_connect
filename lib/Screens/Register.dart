@@ -20,17 +20,11 @@ import 'package:saintconnect/widgets/wrapper.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:screenshot/screenshot.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-
 import 'package:saintconnect/auth/auth.dart';
-import 'package:saintconnect/constants.dart';
-import 'package:saintconnect/widgets/buildtext.dart';
-import 'package:saintconnect/widgets/createButton.dart';
-import 'package:saintconnect/widgets/wrapper.dart';
+
 
 class RegisterScreen extends StatefulWidget {
-
   static const routename="RegisterScreen";
 
   @override
@@ -47,8 +41,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final GlobalKey<FormState> _formKey = GlobalKey();
 
   bool isloading=false;
-bool googlesignisloading=false;
-bool fb=false;
+  bool googlesignisloading=false;
+  bool fb=false;
+
   Future<void> googleSignIn(BuildContext context) async {
     print("Google Sign function");
     final googleSignIn = GoogleSignIn();
@@ -88,19 +83,17 @@ bool fb=false;
 
             imageurl: newuser.photoURL.toString(),
             email: newuser.email,).then((value) async {
-            await GenerateQRCode(value).then((value) async {
-              Fluttertoast.showToast(
-                  msg: "Account is Created",
-                  toastLength: Toast.LENGTH_SHORT,
-                  gravity: ToastGravity.CENTER,
-                  timeInSecForIosWeb: 1,
-                  backgroundColor: Colors.red,
-                  textColor: Colors.white,
-                  fontSize: 16.0
-              );
-              Navigator.pushNamedAndRemoveUntil(
-                  context, Wrapper.routename, (route) => false);
-            });
+            Fluttertoast.showToast(
+                msg: "Account is Created",
+                toastLength: Toast.LENGTH_SHORT,
+                gravity: ToastGravity.CENTER,
+                timeInSecForIosWeb: 1,
+                backgroundColor: Colors.red,
+                textColor: Colors.white,
+                fontSize: 16.0
+            );
+            Navigator.pushNamedAndRemoveUntil(
+                context, Wrapper.routename, (route) => false);
           });
         }
       } else {
@@ -112,87 +105,15 @@ bool fb=false;
   }
 
 
-  Future<void> _launchUrl(String url) async {
-    if (!await launchUrl(Uri.parse(url))) {
-      throw 'Could not launch $url';
-    }
-  }
-
-
-
-  Uint8List ? _imageFile;
-  //Create an instance of ScreenshotController
-  ScreenshotController screenshotController = ScreenshotController();
-  File ? myfile;
-  String ? QRImage='';
-  bool secure=true;
-
-  Widget Qrimage(){
-    return Screenshot(
-      controller: screenshotController,
-      child: Container(
-        height: MediaQuery.of(context).size.height*0.25,
-        width: MediaQuery.of(context).size.width*0.5,
-        child: QrImage(
-          foregroundColor: Color(0xffDAC07A),
-          data: "https://saint-connect.webflow.io/profile?${currentuser!.uid!}",
-          version: QrVersions.auto,
-          size: MediaQuery.of(context).size.height*0.25,
-          gapless: false,
-        ),
-      ),
-    );
-  }
-  Future GenerateQRCode(String documentid)async{
-
-    final Uint8List ? image=await screenshotController.captureFromWidget(Qrimage());
-
-    setState(() {
-      _imageFile = image;
-    });
-
-    if(image!=null){
-      final tempDir = await getTemporaryDirectory();
-      final file = await new File('${tempDir.path}/$user_id.jpg').create();
-      file.writeAsBytesSync(image);
-      setState(() {
-        myfile=file;
-      });
-
-      await uploadQR(docid: documentid);
-    }
-  }
-
-
-
-  Future uploadQR({String ? docid}) async {
-    try{
-      ref = firebase_storage.FirebaseStorage.instance
-          .ref()
-          .child('QRCode/${Path.basename(myfile!.path)}');
-      await ref!.putFile(myfile!).whenComplete(() async {
-        await ref!.getDownloadURL().then((value) async{
-          QRImage=value;
-          await  database.updateqrcode(QRImage.toString(), docid.toString()).then((value) {
-
-          });
-        });
-      });
-    }
-    catch(error){
-
-    }
-
-  }
   CollectionReference ? imgRef;
 
   firebase_storage.Reference ? ref;
 
 
   AuthService _auth=AuthService();
+
   Future _showErrorDialog(String msg) async{
-    final height=MediaQuery.of(context).size.height;
-    final width=MediaQuery.of(context).size.width;
+
     await showDialog(
         context: context,
         builder: (ctx) =>
@@ -214,6 +135,7 @@ bool fb=false;
     );
 
   }
+
   Future<void> _submit() async {
     if (!_formKey.currentState!.validate()) {
       return;
@@ -224,9 +146,13 @@ bool fb=false;
     RegExp regex =
     RegExp(r'^(?=.*?[!@#\$&*~])');
     final emailRegex = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
-    if(email==null || email!.isEmpty || !email!.contains("com")){
+    if(email==null || email!.isEmpty
+
+
+    ){
       _showErrorDialog("Please Enter valid email");
     }
+
     else if(password==null || password!.isEmpty){
       _showErrorDialog("Please Enter Password");
     }
@@ -242,6 +168,7 @@ bool fb=false;
     }
 
     else{
+
       setState(() {
         isloading=true;
       });
@@ -254,14 +181,10 @@ bool fb=false;
 
 
         await database.adduser(userid: user.uid,email: email!,imageurl: "",).then((value) async {
-          await  GenerateQRCode(value).then((value) async{
-            Navigator.pushNamedAndRemoveUntil(context, Wrapper.routename, (route) => false);
-            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                backgroundColor: Colors.white,
-                content: Text("Account Created",style: TextStyle(color: Colors.white),)));
-
-
-          });
+          Navigator.pushNamedAndRemoveUntil(context, Wrapper.routename, (route) => false);
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+              backgroundColor: Colors.white,
+              content: Text("Account Created",style: TextStyle(color: Colors.white),)));
 
 
         });
@@ -300,6 +223,74 @@ bool fb=false;
 
   }
 
+
+
+
+  Uint8List ? _imageFile;
+  //Create an instance of ScreenshotController
+  ScreenshotController screenshotController = ScreenshotController();
+  File ? myfile;
+  String ? QRImage='';
+  bool secure=true;
+
+  Widget Qrimage(){
+    return Screenshot(
+      controller: screenshotController,
+      child: Container(
+        height: MediaQuery.of(context).size.height*0.25,
+        width: MediaQuery.of(context).size.width*0.5,
+        child: QrImageView
+          (
+          foregroundColor: Color(0xffDAC07A),
+          data: "https://saint-connect.webflow.io/profile?${currentuser!.uid!}",
+          version: QrVersions.auto,
+          size: MediaQuery.of(context).size.height*0.25,
+          gapless: false,
+        ),
+      ),
+    );
+  }
+  // Future GenerateQRCode(String documentid)async{
+  //
+  //   final Uint8List ? image=await screenshotController.captureFromWidget(Qrimage());
+  //
+  //   setState(() {
+  //     _imageFile = image;
+  //   });
+  //
+  //   if(image!=null){
+  //     final tempDir = await getTemporaryDirectory();
+  //     final file = await new File('${tempDir.path}/$user_id.jpg').create();
+  //     file.writeAsBytesSync(image);
+  //     setState(() {
+  //       myfile=file;
+  //     });
+  //
+  //     await uploadQR(docid: documentid);
+  //   }
+  // }
+
+
+
+  // Future uploadQR({String ? docid}) async {
+  //   try{
+  //     ref = firebase_storage.FirebaseStorage.instance
+  //         .ref()
+  //         .child('QRCode/${Path.basename(myfile!.path)}');
+  //     await ref!.putFile(myfile!).whenComplete(() async {
+  //       await ref!.getDownloadURL().then((value) async{
+  //         QRImage=value;
+  //         await  database.updateqrcode(QRImage.toString(), docid.toString()).then((value) {
+  //
+  //         });
+  //       });
+  //     });
+  //   }
+  //   catch(error){
+  //
+  //   }
+  //
+  // }
 
 
   @override

@@ -325,7 +325,7 @@ final data=ModalRoute.of(context)!.settings.arguments as List<String?>;
                             height: height*0.8,
 
                             decoration: BoxDecoration(
-                                color: Color(0xff2A2A2A),
+                                color: Color(0xff1d1b1e),
                                 boxShadow: [
                                   BoxShadow(
                                       color: Color(0xffDAC07A),
@@ -378,20 +378,24 @@ final data=ModalRoute.of(context)!.settings.arguments as List<String?>;
                                       SizedBox(height: height*0.01,),
                                       BuildWhiteMuiliText(txt: "Add a new profile to your team! You have access to add your new profile to any existing physical card or just stick to the digital life! ", fontsize: 0.02),
                                       SizedBox(height: height*0.05,),
+
+                                      Center(
+                                        child: Container(
+                                            // width: width*0.6,
+                                            height: height*0.45,
+                                            child: Image.asset("images/getstarted.gif",fit: BoxFit.fill,)
+                                        ),
+                                      ),
+                                      SizedBox(height: height*0.05,),
                                       BuildItalicText(txt: "Access to all of the benefits", fontsize: 0.0358),
                                       SizedBox(height: height*0.01,),
                                       BuildWhiteMuiliText(txt: "Add a new profile to your team! You have access to add your new profile to any existing physical card or just stick to the digital life! ", fontsize: 0.02),
                                       SizedBox(height: height*0.05,),
                                       Center(
                                         child: Container(
-                                            width: width*0.6,
-                                            height: height*0.5,
-                                            decoration: BoxDecoration(
+                                            // width: width*0.6,
+                                            height: height*0.45,
 
-                                              border: Border.all(
-                                                  color: mycolor
-                                              ),
-                                            ),
 
                                             child: Image.asset("images/Connect a card.gif",fit: BoxFit.fill,)
 
@@ -405,21 +409,7 @@ final data=ModalRoute.of(context)!.settings.arguments as List<String?>;
                                       BuildItalicText(txt: "Get Started", fontsize: 0.0358),
                                       SizedBox(height: height*0.01,),
                                       BuildWhiteMuiliText(txt: "Worried about the member leaving? No need to worries as with Saint Connect you can cancel any time. No commitment, no contracts. ", fontsize: 0.02),
-                                      SizedBox(height: height*0.05,),
-                                      Center(
-                                        child: Container(
 
-                                            width: width*0.6,
-                                            height: height*0.5,
-                                            decoration: BoxDecoration(
-
-                                              border: Border.all(
-                                                  color: mycolor
-                                              ),
-                                            ),
-                                            child: Image.asset("images/getstarted.gif",fit: BoxFit.fill,)
-                                        ),
-                                      ),
                                       SizedBox(height: height*0.3,),
 
 
@@ -641,7 +631,7 @@ final data=ModalRoute.of(context)!.settings.arguments as List<String?>;
                                               mainAxisAlignment: MainAxisAlignment.center,
                                               children: [
 
-                                                Text("Subscribe",style: TextStyle(
+                                                Text("Create Profile",style: TextStyle(
                                                     color: Colors.black,
                                                     fontSize: height*0.025,
                                                     fontWeight: FontWeight.w400

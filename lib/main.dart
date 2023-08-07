@@ -14,19 +14,17 @@ import 'package:saintconnect/Screens/MyTeam.dart';
 import 'package:saintconnect/Screens/MyTeamNewProfile.dart';
 import 'package:saintconnect/Screens/Newpassword.dart';
 import 'package:saintconnect/Screens/Profile.dart';
-import 'package:saintconnect/Screens/Notes.dart';
-import 'package:saintconnect/Screens/ProfileSuccess.dart';
+import 'package:saintconnect/Screens/CardCreationSuccess.dart';
 import 'package:saintconnect/Screens/PurchaseNewDevice.dart';
 import 'package:saintconnect/Screens/QrCode.dart';
 import 'package:saintconnect/Screens/Register.dart';
 import 'package:saintconnect/Screens/ShareDetails.dart';
-import 'package:saintconnect/Screens/Team/add_team.dart';
-import 'package:saintconnect/Screens/Team/edit_team.dart';
-import 'package:saintconnect/Screens/TeamNotes.dart';
+
 import 'package:saintconnect/Screens/change_email.dart';
 import 'package:saintconnect/Screens/edit_profile.dart';
 import 'package:saintconnect/Screens/forget_password/enter_email.dart';
 import 'package:saintconnect/Screens/nfcscreen.dart';
+import 'package:saintconnect/Screens/profile_created.dart';
 import 'package:saintconnect/Screens/setting.dart';
 import 'package:saintconnect/Screens/splash.dart';
 import 'package:saintconnect/Screens/update_nfc.dart';
@@ -84,8 +82,8 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       home: Wrapper(),
       routes: {
-      'update_NFC':(context)=>update_NFC(),
-
+        'update_NFC':(context)=>update_NFC(),
+        'ProfileCreated':(context)=>ProfileCreated(),
         'NFC_Screen':(context)=>NFC_Screen(),
         'Wrapper':(context)=>Wrapper(),
         'CreateAccount':(context)=>CreateAccount(),
@@ -97,9 +95,8 @@ class MyApp extends StatelessWidget {
         'MyCardStage3':(context)=>MyCardStage3(),
         'MyTeam':(context)=>MyTeam(),
         'MyTeamNewProfile':(context)=>MyTeamNewProfile(),
-        'Notes':(context)=>Notes(),
         'Profile':(context)=>Profile(),
-        'ProfileSuccess':(context)=>ProfileSuccess(),
+        'CardCreationSuccesScreen':(context)=>CardCreationSuccesScreen(),
         'PurchaseNewDevice':(context)=>PurchaseNewDevice(),
         'QrCode':(context)=>QrCode(),
         'Setting':(context)=>Setting(),
@@ -108,7 +105,7 @@ class MyApp extends StatelessWidget {
         'NewPassword':(context)=>NewPassword(),
         'ShareDetails':(context)=>ShareDetails(),
         'SplashScreen':(context)=>SplashScreen(),
-        'TeamNotes':(context)=>TeamNotes(),
+
         'UploadCardDesign':(context)=>UploadCardDesign(),
         'Welcome':(context)=>Welcome(),
         'ActivateDevice':(context)=>ActivateDevice(),

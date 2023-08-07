@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter_svg/svg.dart';
 import 'dart:io';
 import 'package:flutter/cupertino.dart';
@@ -138,7 +139,17 @@ top: 0,
                         borderRadius: BorderRadius.circular(10)
                     ),
                   padding: EdgeInsets.all(8),
-                  child: Image.network(currentuser!.qr_image.toString(), height: height*0.025,color: mycolor),
+                  child:
+                  CachedNetworkImage(
+                    height: height*0.025,
+                    imageUrl: currentuser!.qr_image.toString(),
+                    progressIndicatorBuilder: (context, url, downloadProgress) =>
+                        CircularProgressIndicator(value: downloadProgress.progress),
+                    errorWidget: (context, url, error) => Text("",
+                     style: TextStyle(color: Colors.white),
+                    )
+                  ),
+
 
                   ),
                 )

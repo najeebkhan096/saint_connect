@@ -7,7 +7,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:nfc_manager/nfc_manager.dart';
 import 'package:saintconnect/Database/profile.dart';
-import 'package:saintconnect/Screens/ProfileSuccess.dart';
+import 'package:saintconnect/Screens/CardCreationSuccess.dart';
 import 'package:saintconnect/constants.dart';
 import 'package:saintconnect/module/MyProfile.dart';
 import 'package:saintconnect/module/myuser.dart';
@@ -73,7 +73,7 @@ bool writing=false;
           // ),
           NdefRecord.createUri(Uri.parse(
 
-            'https://www.saintconnect.info/profile?uid=${docid}'
+            'https://www.saintconnect.info/profile?uid=${connect_profile!.docid.toString()}'
 
           )),
           // NdefRecord.createMime(
@@ -87,7 +87,7 @@ bool writing=false;
           await ndef.write(message);
           NfcManager.instance.stopSession();
           String result = 'Success to "Ndef Write"';
-          Navigator.of(context).pushNamed(ProfileSuccess.routename,arguments: [connect_profile,cardtype,imageurl]);
+          Navigator.of(context).pushNamed(CardCreationSuccesScreen.routename,arguments: [connect_profile,cardtype,imageurl]);
 
 
         } catch (e) {

@@ -2,19 +2,18 @@ import 'dart:io';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:saintconnect/Database/database.dart';
 import 'package:saintconnect/Screens/ActivateDevice.dart';
 import 'package:saintconnect/Screens/Newpassword.dart';
 import 'package:saintconnect/Screens/change_email.dart';
-import 'package:saintconnect/Screens/nfcscreen.dart';
-import 'package:saintconnect/Screens/webview.dart';
+import 'package:saintconnect/Screens/delete_account.dart';
 import 'package:saintconnect/constants.dart';
 import 'package:saintconnect/module/MyProfile.dart';
 import 'package:saintconnect/module/myuser.dart';
 import 'package:saintconnect/widgets/bottomnavigattionbar.dart';
-import 'package:saintconnect/widgets/buildpacage.dart';
 import 'package:saintconnect/widgets/buildtext.dart';
-import 'package:saintconnect/widgets/createButton.dart';
 import 'package:saintconnect/widgets/wrapper.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -27,6 +26,22 @@ class Setting extends StatefulWidget {
 }
 
 class _SettingState extends State<Setting> {
+  void openEmailClient({required String?  email}) async {
+    final Uri emailUri = Uri(
+      scheme: 'mailto',
+      path: email,
+      queryParameters: {
+        'subject': 'Support',
+        'body': '',
+      },
+    );
+
+    if (await canLaunch(emailUri.toString())) {
+      await launch(emailUri.toString());
+    } else {
+      throw 'Could not launch email client';
+    }
+  }
   _launchURL() async {
     if (Platform.isIOS) {
       const url = 'https://apps.apple.com/us/app/APP_NAME/idAPP_ID';
@@ -148,7 +163,6 @@ class _SettingState extends State<Setting> {
             ),
           ),
           SizedBox(height: height*0.05,),
-
           Container(
               margin: EdgeInsets.only(left: width*0.08,right: width*0.08),
               height: height*0.155,
@@ -156,8 +170,8 @@ class _SettingState extends State<Setting> {
 
               decoration: BoxDecoration(
                   border: Border.all(
-                    color: mycolor,
-                    width: 0.75
+                      color: mycolor,
+                      width: 0.75
                   ),
                   color: Color(0xff2A2A2A),
                   borderRadius: BorderRadius.circular(5)
@@ -167,10 +181,18 @@ class _SettingState extends State<Setting> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
+                  FutureBuilder(
+                      future: database.fetch_first_profile_userid(id: currentuser!.uid!),
+                      builder: (ctx,AsyncSnapshot<MyProfile?> snapshot){
+                        return
+                          snapshot.connectionState==ConnectionState.waiting?
+                          SpinKitCircle(color: Colors.white,)
+                              : BuildWhiteMuiliTextBold(txt:
+                          snapshot.data==null?'No Profile':
+                          snapshot.data!.your_details!.name!, fontsize: 0.018527);
 
-                  BuildWhiteMuiliTextBold(txt:
-                  currentuser_MyProfile==null?'':
-                  currentuser_MyProfile!.your_details!.name!, fontsize: 0.018527),
+                      }),
+
                   SizedBox(height: height*0.005),
                   BuildWhiteMuiliText(txt: currentuser!.email, fontsize: 0.014),
                   SizedBox(height: height*0.005),
@@ -181,6 +203,7 @@ class _SettingState extends State<Setting> {
                 ],
               )
           ),
+
           SizedBox(height: height*0.025,),
           Container(
             margin: EdgeInsets.only(left: width*0.08,right: width*0.08),
@@ -195,7 +218,6 @@ class _SettingState extends State<Setting> {
       },
       child: Container(
             height: height*0.049,
-
             decoration: BoxDecoration(
                 color: Color(0xff2A2A2A),
                 border: Border.all(
@@ -280,7 +302,7 @@ class _SettingState extends State<Setting> {
                   InkWell(
                       onTap: ()async{
 
-                     await  launchUrl(Uri.parse("https://saintconnect.info/terms-and-privacy-policy",
+                     await  launchUrl(Uri.parse("https://www.saintconnect.info/legal/terms-conditions",
                      ),
                          mode: LaunchMode.externalApplication
                      );
@@ -335,63 +357,83 @@ class _SettingState extends State<Setting> {
           ),
 
           SizedBox(height: height*0.025,),
-          InkWell(
-            onTap: ()async{
+          Container(
+              margin: EdgeInsets.only(left: width*0.08,right: width*0.08),
+              height: height*0.16,
+              width: width*0.42,
 
-
-              await  launchUrl(Uri.parse("https://saintconnect.info/faq-saint-connect",
+              decoration: BoxDecoration(
+                  color: Color(0xff2A2A2A),
+                  border: Border.all(
+                      color: mycolor,
+                      width: 0.75
+                  ),
+                  borderRadius: BorderRadius.circular(5)
               ),
-                  mode: LaunchMode.externalApplication
-              );
-            },
-            child: Container(
-                margin: EdgeInsets.only(left: width*0.08,right: width*0.08),
-                height: height*0.16,
-                width: width*0.42,
-
-                decoration: BoxDecoration(
-                    color: Color(0xff2A2A2A),
-                    border: Border.all(
-                        color: mycolor,
-                        width: 0.75
-                    ),
-                    borderRadius: BorderRadius.circular(5)
-                ),
-                padding: EdgeInsets.only(left: width*0.05,right: width*0.05),
-                alignment: Alignment.centerLeft,
-                child:Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    SizedBox(height: height*0.015,),
-                    BuildWhiteMuiliTextBold(txt: "Frequently Asked Questions (FAQ)", fontsize: 0.0185),
-                    Divider(
-                      color: mycolor,
-                    ),
-                    InkWell(
-                        onTap: ()async{
-
-                          await  launchUrl(Uri.parse("https://saintconnect.info/contact",
-                          ),
-                              mode: LaunchMode.externalApplication
+              padding: EdgeInsets.only(left: width*0.05,right: width*0.05),
+              alignment: Alignment.centerLeft,
+              child:Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  SizedBox(height: height*0.015,),
+                  InkWell(
+                      onTap: ()async{
+                        await  launchUrl(Uri.parse("https://saintconnect.info/faq-saint-connect",
+                        ),
+                            mode: LaunchMode.externalApplication
+                        );
+                      },
+                      child: BuildWhiteMuiliTextBold(txt: "Frequently Asked Questions (FAQ)", fontsize: 0.0185)),
+                  Divider(
+                    color: mycolor,
+                  ),
+                  InkWell(
+                      onTap: ()async{
+                        print("hello");
+                        final Uri params = Uri(
+                            scheme: 'mailto',
+                            path: 'Support@Saintconnect.info',
+                            queryParameters: {
+                              'subject': '',
+                              'body': ''
+                            }
+                        );
+                        String url = params.toString();
+                        try {
+                          await launch(
+                            url,
+                            enableJavaScript: true,
                           );
-                        },
-                        child : BuildWhiteMuiliTextBold(txt: "Need support?", fontsize: 0.0185)),
-                    Divider(
-                      color: mycolor,
-                    ),
-                    InkWell(
-                        onTap: ()async{
 
-                          await  launchUrl(Uri.parse("https://play.google.com/store",
-                          ),
-                              mode: LaunchMode.externalApplication
-                          );
-                        },
-                        child : BuildWhiteMuiliTextBold(txt: "Review Us", fontsize: 0.0185)),
+                        } catch (e) {
+                          print("error is "+e.toString());
+                        }
+                         // openEmailClient(email: 'Support@Saintconnect.info');
+                        // await  launchUrl(Uri.parse("https://Support@Saintconnect.info",
+                        // ),
+                        //     mode: LaunchMode.externalApplication
+                        // );
 
-                  ],
-                )
-            ),
+                      },
+                      child : Container(
+                          width: width*1,
+                          alignment: Alignment.centerLeft,
+                          child: BuildWhiteMuiliTextBold(txt: "Need support?", fontsize: 0.0185))),
+                  Divider(
+                    color: mycolor,
+                  ),
+                  InkWell(
+                      onTap: ()async{
+
+                        await  launchUrl(Uri.parse("https://play.google.com/store",
+                        ),
+                            mode: LaunchMode.externalApplication
+                        );
+                      },
+                      child : BuildWhiteMuiliTextBold(txt: "Review Us", fontsize: 0.0185)),
+
+                ],
+              )
           ),
           SizedBox(height: height*0.025,),
 
@@ -415,10 +457,9 @@ class _SettingState extends State<Setting> {
 
                   BuildWhiteMuiliTextBold(txt: "Visit Our Socials", fontsize: 0.01852),
                   SizedBox(height: height*0.015,),
+
                  Row(
-
                    mainAxisAlignment: MainAxisAlignment.center,
-
                    children: List.generate(social.length, (index) => InkWell(
                      onTap: () async {
                        if(index==0){
@@ -473,7 +514,6 @@ class _SettingState extends State<Setting> {
                      ),
                    )),
                  )
-
                 ],
               )
           ),
@@ -481,23 +521,31 @@ class _SettingState extends State<Setting> {
           SizedBox(height: height*0.025,),
 
 
-          Container(
-              margin: EdgeInsets.only(left: width*0.08,right: width*0.08),
-              height: height*0.07,
-              width: width*0.42,
-              decoration: BoxDecoration(
-                  color: Color(0xff2A2A2A),
-                  border: Border.all(
-                      color: mycolor,
-                      width: 0.75
-                  ),
-                  borderRadius: BorderRadius.circular(5)
+          InkWell(
+            onTap: ()async{
+              await  launchUrl(Uri.parse("https://saintconnect.goaffpro.com/",
               ),
-              padding: EdgeInsets.only(left: width*0.05),
-              alignment: Alignment.centerLeft,
-              child:BuildWhiteMuiliTextBold(txt: "Become a partner (Referral Scheme)", fontsize: 0.01852,
-              start: true,
-              )
+                  mode: LaunchMode.externalApplication
+              );
+            },
+            child: Container(
+                margin: EdgeInsets.only(left: width*0.08,right: width*0.08),
+                height: height*0.07,
+                width: width*0.42,
+                decoration: BoxDecoration(
+                    color: Color(0xff2A2A2A),
+                    border: Border.all(
+                        color: mycolor,
+                        width: 0.75
+                    ),
+                    borderRadius: BorderRadius.circular(5)
+                ),
+                padding: EdgeInsets.only(left: width*0.05),
+                alignment: Alignment.centerLeft,
+                child:BuildWhiteMuiliTextBold(txt: "Become a Partner (Affiliate Program)", fontsize: 0.01852,
+                start: true,
+                )
+            ),
           ),
 
           SizedBox(height: height*0.025,),
@@ -525,21 +573,30 @@ class _SettingState extends State<Setting> {
 
 
           SizedBox(height: height*0.025,),
-          Container(
-              height: height*0.07,
-              width: width*0.42,
-              margin: EdgeInsets.only(left: width*0.08,right: width*0.08),
-              decoration: BoxDecoration(
-                  color: Color(0xff2A2A2A),
-                  border: Border.all(
-                      color: mycolor,
-                      width: 0.75
-                  ),
-                  borderRadius: BorderRadius.circular(5)
-              ),
-              padding: EdgeInsets.only(left: width*0.05,right: width*0.05),
-              alignment: Alignment.centerLeft,
-              child:BuildWhiteMuiliTextBold(txt: "Delete Account", fontsize: 0.01852)
+          InkWell(
+            onTap: (){
+             Navigator.of(context).push(
+               MaterialPageRoute(builder: (context){
+                 return DeleteAccountScreen();
+               })
+             );
+            },
+            child: Container(
+                height: height*0.07,
+                width: width*0.42,
+                margin: EdgeInsets.only(left: width*0.08,right: width*0.08),
+                decoration: BoxDecoration(
+                    color: Color(0xff2A2A2A),
+                    border: Border.all(
+                        color: mycolor,
+                        width: 0.75
+                    ),
+                    borderRadius: BorderRadius.circular(5)
+                ),
+                padding: EdgeInsets.only(left: width*0.05,right: width*0.05),
+                alignment: Alignment.centerLeft,
+                child:BuildWhiteMuiliTextBold(txt: "Delete Account", fontsize: 0.01852)
+            ),
           ),
 
 

@@ -235,18 +235,12 @@ bool viewanalytics=false;
                                     blurRadius: 10
                                 )
                               ],
-
-                            ),
-
+image: DecorationImage(image: NetworkImage((widget.current_card!.card_image!),
+),
+  fit: BoxFit.cover
+                            )),
                             padding: EdgeInsets.only(left: height*0.015),
-                            child:
 
-
-                            AspectRatio(
-                              aspectRatio: 17/11,
-                              child: Image.network(widget.current_card!.card_image!,fit: BoxFit.cover,),
-                            )
-                            ,
                           ),
                         ),
                       ),
@@ -327,9 +321,7 @@ bool viewanalytics=false;
                     ),
                     alignment: Alignment.centerLeft,
                     //  BuildMuliGrey(txt: current_card!.connected_profile_username!, fontsize: 0.02),
-                    child:
-                    DropdownButton<String>(
-
+                    child: DropdownButton<String>(
                       hint: BuildMuliGrey(txt: widget.current_card!.connected_profile_username!, fontsize: 0.02),
                       value: selected_categ,
                       onChanged: (value) async {
@@ -339,7 +331,7 @@ print("lala "+desired!.your_details!.name.toString());
 
                           Navigator.of(context).pushNamed(
                               update_NFC.routename,
-                              arguments: [widget.current_card,desired.profile_image,desired,widget.current_card!.docid!]
+                              arguments: [widget.current_card!.card_type,desired.profile_image,desired,widget.current_card!.docid!]
                           );
              // await  database.update_card(docid: widget.current_card!.docid!,connected_profile_username: desired.your_details!.name ,connected_profile_uid: desired.docid).then((value) {
              //

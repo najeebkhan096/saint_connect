@@ -39,7 +39,7 @@ class _MyTeamState extends State<MyTeam> {
 
       paymentIntentData = await createPaymentIntent(
         amount:totalamount.toString(),
-        currency: 'USD',
+        currency: 'gbp',
 
       ); //json.decode(response.body);
       // print('Response body==>${response.body.toString()}');
@@ -175,7 +175,7 @@ class _MyTeamState extends State<MyTeam> {
   //                           fontWeight: FontWeight.bold
   //
   //                       ),),
-  //                     Text("\$4.46",
+  //                     Text("\£3.99",
   //
   //                       style: TextStyle(
   //                         color: Colors.black,
@@ -210,7 +210,7 @@ class _MyTeamState extends State<MyTeam> {
   //                       fontWeight: FontWeight.bold
   //
   //                   ),),
-  //                 Text("\$3.12 (20% off)",
+  //                 Text("\£38.30 (20% off)",
   //
   //                   style: TextStyle(
   //                     color: Colors.black,
@@ -262,7 +262,7 @@ class _MyTeamState extends State<MyTeam> {
   //                       fontSize: height*(0.02),
   //
   //                     ),),
-  //                   Text("\$3.12 (20% off)",
+  //                   Text("\£38.30 (20% off)",
   //
   //                     style: TextStyle(
   //                       color: Colors.black,
@@ -295,7 +295,7 @@ class _MyTeamState extends State<MyTeam> {
   //                       fontSize: height*(0.02),
   //
   //                     ),),
-  //                   Text("\$4.46 (20% off)",
+  //                   Text("\£3.99 (20% off)",
   //
   //                     style: TextStyle(
   //                       color: Colors.black,
@@ -343,24 +343,29 @@ crossAxisAlignment: CrossAxisAlignment.center,
 
               children: [
                 Expanded(
-                    flex: 2,
+                    flex: 1,
                     child: Container(
-                  height:  height*0.05,
+                  height:  height*0.052,
 
                 )),
 
                 Expanded(
-                  flex: 3,
+                  flex: 4,
                   child: Container(
-                  height:  height*0.05,
+                  height:  height*0.052,
 
-                child:  Row(
+                child:   Row(
+
+                  mainAxisAlignment: MainAxisAlignment.center,
+
                   children: [
-                    Image.asset("images/logo.png",height: height*0.05,fit: BoxFit.fill,),
+
+                    Image.asset("images/logo.png",height: height*0.045,fit: BoxFit.fill,),
 
                     SizedBox(width: width*0.025,),
 
-                    BuildItalicText(txt: "Connect", fontsize: 0.0358),
+                    BuildItalicText(txt: "Connect", fontsize: 0.035),
+
                   ],
                 ),
                 ),
@@ -373,13 +378,13 @@ crossAxisAlignment: CrossAxisAlignment.center,
                         Navigator.of(context).pushNamed(Setting.routename);
                       },
                       child: Container(
-                  height:  height*0.05,
+                  height:  height*0.052,
                         margin: EdgeInsets.only(right: width*0.05),
 
 
                   child:      Icon(Icons.settings,
                       color: mycolor,
-                      size:  height*0.041,
+                      size:  height*0.032,
                   ),
 
                 ),
@@ -504,7 +509,8 @@ crossAxisAlignment: CrossAxisAlignment.center,
                          height: height*0.8,
 
                          decoration: BoxDecoration(
-                             color: Color(0xff2A2A2A),
+                              color: Color(0xff1d1b1e),
+
                              boxShadow: [
                                BoxShadow(
                                    color: Color(0xffDAC07A),
@@ -557,20 +563,25 @@ crossAxisAlignment: CrossAxisAlignment.center,
                                    SizedBox(height: height*0.01,),
                                    BuildWhiteMuiliText(txt: "Add a new profile to your team! You have access to add your new profile to any existing physical card or just stick to the digital life! ", fontsize: 0.02),
                                    SizedBox(height: height*0.05,),
+
+                                   Center(
+                                     child: Container(
+
+                                         // width: width*0.6,
+                                         height: height*0.45,
+
+                                         child: Image.asset("images/getstarted.gif",fit: BoxFit.fill,)
+                                     ),
+                                   ),
+                                   SizedBox(height: height*0.05,),
                                    BuildItalicText(txt: "Access to all of the benefits", fontsize: 0.0358),
                                    SizedBox(height: height*0.01,),
                                    BuildWhiteMuiliText(txt: "Add a new profile to your team! You have access to add your new profile to any existing physical card or just stick to the digital life! ", fontsize: 0.02),
                                    SizedBox(height: height*0.05,),
                                    Center(
                                      child: Container(
-                                         width: width*0.6,
-                                         height: height*0.5,
-                                         decoration: BoxDecoration(
-
-                                           border: Border.all(
-                                               color: mycolor
-                                           ),
-                                         ),
+                                         // width: width*0.6,
+                                         height: height*0.45,
 
                                          child: Image.asset("images/Connect a card.gif",fit: BoxFit.fill,)
 
@@ -584,21 +595,6 @@ crossAxisAlignment: CrossAxisAlignment.center,
                                    BuildItalicText(txt: "Get Started", fontsize: 0.0358),
                                    SizedBox(height: height*0.01,),
                                    BuildWhiteMuiliText(txt: "Worried about the member leaving? No need to worries as with Saint Connect you can cancel any time. No commitment, no contracts. ", fontsize: 0.02),
-                                   SizedBox(height: height*0.05,),
-                                   Center(
-                                     child: Container(
-
-                                         width: width*0.6,
-                                         height: height*0.5,
-                                         decoration: BoxDecoration(
-
-                                           border: Border.all(
-                                               color: mycolor
-                                           ),
-                                         ),
-                                         child: Image.asset("images/getstarted.gif",fit: BoxFit.fill,)
-                                     ),
-                                   ),
                                    SizedBox(height: height*0.3,),
 
 
@@ -652,7 +648,7 @@ crossAxisAlignment: CrossAxisAlignment.center,
                                                            fontWeight: FontWeight.w700
 
                                                        ),),
-                                                     Text("\$4.46",
+                                                     Text("\£3.99",
 
                                                        style: TextStyle(
                                                          color: Colors.black,
@@ -687,7 +683,7 @@ crossAxisAlignment: CrossAxisAlignment.center,
                                                        fontWeight: FontWeight.w700
 
                                                    ),),
-                                                 Text("\$3.12 (20% off)",
+                                                 Text("\£38.30 (20% off)",
 
                                                    style: TextStyle(
                                                      color: Colors.black,
@@ -743,7 +739,7 @@ crossAxisAlignment: CrossAxisAlignment.center,
                                                          fontWeight: FontWeight.w700
 
                                                      ),),
-                                                   Text("\$3.12 (20% off)",
+                                                   Text("\£38.30 (20% off)",
 
                                                      style: TextStyle(
                                                        color: Colors.black,
@@ -777,7 +773,7 @@ crossAxisAlignment: CrossAxisAlignment.center,
                                                          fontWeight: FontWeight.w700
 
                                                      ),),
-                                                   Text("\$4.46",
+                                                   Text("\£3.99",
 
                                                      style: TextStyle(
                                                        color: Colors.black,
@@ -820,7 +816,7 @@ crossAxisAlignment: CrossAxisAlignment.center,
                                            mainAxisAlignment: MainAxisAlignment.center,
                                            children: [
 
-                                             Text("Subscribe",style: TextStyle(
+                                             Text("Create Profile",style: TextStyle(
                                                  color: Colors.black,
                                                  fontSize: height*0.025,
                                                  fontWeight: FontWeight.w400
@@ -944,8 +940,7 @@ crossAxisAlignment: CrossAxisAlignment.center,
                         bottom: 0,
 
                         child: Container(
-
-                          child: Image.network(myprof.qrcode.toString(),height: height*0.2,width: width*0.3,
+                          child: Image.network(myprof.qrcode!.golden_image.toString(),height: height*0.2,width: width*0.3,
 
                           ),
                         )),
@@ -1044,7 +1039,9 @@ crossAxisAlignment: CrossAxisAlignment.center,
               onTap: (){
                 Navigator.of(context).push(MaterialPageRoute(builder: (context){
                   return Editprofile(desiredprofile: myprof);
-                })).then((value)  {
+                })).then((value)  async{
+                  currentuser_MyProfile =
+                      await database.fetch_first_profile_userid(id: currentuser!.uid!);
                 setState(() {
 
                 });

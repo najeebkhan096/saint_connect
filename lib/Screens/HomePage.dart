@@ -40,7 +40,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   if(gotdata==false){
 
-    currentuser_MyProfile=await database.fetch_profile_userid(id: currentuser!.uid!);
+    currentuser_MyProfile=await database.fetch_first_profile_userid(id: currentuser!.uid!);
 
 
   }
@@ -49,28 +49,28 @@ class _HomeScreenState extends State<HomeScreen> {
   List<BuildTeam> quickaccess=[
     BuildTeam(
       path: "icons/view_team.svg",
-      title: "View Your Team",
-      subtitle: "Have an overview of your team, manage their profiles and update information",
+      title: "View My Team",
+      subtitle: "Have an overview of your team, manage their profiles and update information.",
     ),
     BuildTeam(
       path: "icons/view_card.png",
-      title: "View Your Card",
-      subtitle: "See all of your cards and who they are assigned to",
+      title: "View My Card",
+      subtitle: "See all of your cards and who they are assigned to.",
     ),
     BuildTeam(
       path: "icons/insight.svg",
       title: "Insight & Performance",
-      subtitle: "See the latest stats from your team",
+      subtitle: "See the latest stats from your team.",
     ),
     BuildTeam(
       path: "icons/faqs.svg",
       title: "FAQs",
-      subtitle: "Visit the FAQs to see what people are asking",
+      subtitle: "Visit the FAQs to see what people are asking.",
     ),
     BuildTeam(
       path: "icons/activate_device.svg",
       title: "Activate a Device",
-      subtitle: "Looking to activate a new product?",
+      subtitle: "Looking to activate a new product?.",
     ),
     BuildTeam(
       path: "icons/view_shop.svg",
@@ -172,9 +172,11 @@ double percentage=0.3;
                   Navigator.of(context).pushNamed(MyTeam.routename);
                 }
                else if(index==1){
-                  Navigator.of(context).pushNamed(QrCode.routename);
+                  Navigator.of(context).pushNamed(ActivateDevice.routename);
                 }
                 else if(index==2){
+
+
                   Navigator.of(context).pushNamed(Insights.routename);
                 }
                 else if(index==3){
@@ -207,7 +209,17 @@ double percentage=0.3;
                       mode: LaunchMode.externalApplication
                   );
 
-               }},
+               }
+                else if(index==7){
+
+                  await  launchUrl(Uri.parse("https://www.saintconnect.info/resources-saint-connect",
+                  ),
+                      mode: LaunchMode.externalApplication
+                  );
+
+                }
+
+                },
               child: BuildTeam(
               path:quickaccess[index].path,
                 title: quickaccess[index].title,

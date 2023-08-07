@@ -8,8 +8,8 @@ import 'package:saintconnect/widgets/buildtext.dart';
 import 'package:saintconnect/widgets/createButton.dart';
 
 
-class ProfileSuccess extends StatelessWidget {
-  static const routename="ProfileSuccess";
+class CardCreationSuccesScreen extends StatelessWidget {
+  static const routename="CardCreationSuccesScreen";
   MyProfile ? desireduser;
   String ? cardtype='';
   String imgurl='';
@@ -23,6 +23,7 @@ class ProfileSuccess extends StatelessWidget {
       cardtype=data[1];
       desireduser=data[0];
       imgurl=data[2];
+      print("gaando "+cardtype .toString());
     }
 
     return Scaffold(
@@ -53,7 +54,7 @@ decoration: BoxDecoration(
 
               Container(
                     width: width*0.7,
-                    child: BuildWhiteMuiliTextBold(txt: 'Your profile has been created.', fontsize: 0.0305)),
+                    child: BuildWhiteMuiliTextBold(txt: 'Your Profile has been Connected.', fontsize: 0.0305)),
 
               SizedBox(height: height*0.05,),
 
@@ -65,7 +66,9 @@ decoration: BoxDecoration(
                   children: [
 
                     Positioned(
+
                       bottom: 0,
+
                    child:  (cardtype=="White Connect Card" )?
 
                    Container(

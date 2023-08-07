@@ -53,7 +53,7 @@ bool fb=false;
       child: Container(
         height: MediaQuery.of(context).size.height*0.25,
         width: MediaQuery.of(context).size.width*0.5,
-        child: QrImage(
+        child: QrImageView(
           foregroundColor: Color(0xffDAC07A),
           data: "https://saint-connect.webflow.io/profile?uid=${currentuser!.uid.toString()}",
           version: QrVersions.auto,
@@ -64,21 +64,6 @@ bool fb=false;
     );
   }
 
-  Future GenerateQRCode(String documentid)async{
-
-    final Uint8List ? image=await screenshotController.captureFromWidget(Qrimage());
-
-    if(image!=null){
-      final tempDir = await getTemporaryDirectory();
-      final file = await new File('${tempDir.path}/$user_id.jpg').create();
-      file.writeAsBytesSync(image);
-      setState(() {
-        myfile=file;
-      });
-
-      await database.uploadQR(docid: documentid);
-    }
-  }
 
 
 
@@ -123,19 +108,17 @@ bool fb=false;
             email: newuser.email,
 
           ).then((value) async {
-            await GenerateQRCode( value).then((value) async {
-              Fluttertoast.showToast(
-                  msg: "Account is Created",
-                  toastLength: Toast.LENGTH_SHORT,
-                  gravity: ToastGravity.CENTER,
-                  timeInSecForIosWeb: 1,
-                  backgroundColor: Colors.red,
-                  textColor: Colors.white,
-                  fontSize: 16.0
-              );
-              Navigator.pushNamedAndRemoveUntil(
-                  context, Wrapper.routename, (route) => false);
-            });
+            Fluttertoast.showToast(
+                msg: "Account is Created",
+                toastLength: Toast.LENGTH_SHORT,
+                gravity: ToastGravity.CENTER,
+                timeInSecForIosWeb: 1,
+                backgroundColor: Colors.red,
+                textColor: Colors.white,
+                fontSize: 16.0
+            );
+            Navigator.pushNamedAndRemoveUntil(
+                context, Wrapper.routename, (route) => false);
           });
         }
       } else {
@@ -182,6 +165,7 @@ bool fb=false;
 
 
     if(email==null || email!.isEmpty){
+
       _showErrorDialog("Please Enter valid email");
     }
     else if(password==null || password!.isEmpty){

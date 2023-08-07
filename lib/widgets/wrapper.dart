@@ -1,10 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
-
-
 import 'package:provider/provider.dart';
-import 'package:saintconnect/Screens/CreateAccount.dart';
 import 'package:saintconnect/Screens/CreateProfile.dart';
 import 'package:saintconnect/Screens/HomePage.dart';
 import 'package:saintconnect/Screens/welcome.dart';
@@ -12,7 +9,9 @@ import 'package:saintconnect/auth/auth.dart';
 import 'package:saintconnect/module/myuser.dart';
 
 class Wrapper extends StatelessWidget {
+
   static const routename = 'Wrapper';
+
   Future<bool> Check_position(String id) async {
     bool admin = false;
     CollectionReference collection =
@@ -42,6 +41,7 @@ class Wrapper extends StatelessWidget {
     });
     return admin;
   }
+
   @override
   Widget build(BuildContext context) {
 
@@ -66,14 +66,12 @@ class Wrapper extends StatelessWidget {
           return user == null ? Welcome():
 
           FutureBuilder(
-
               future: Check_position(user.uid.toString()),
 
               builder: (BuildContext context, AsyncSnapshot snapshot) {
 
-                return !snapshot.hasData
-
-                    ? SpinKitCircle(
+                return !snapshot.hasData  ?
+                SpinKitCircle(
 
                   color: Colors.white,
 

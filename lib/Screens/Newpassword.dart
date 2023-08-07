@@ -60,23 +60,29 @@ class _NewPasswordState extends State<NewPassword> {
   }
 
 
-  String ? _showErrorDialog(String msg)
-  {
-    showDialog(
+  Future _showErrorDialog(String msg) async{
+    final height=MediaQuery.of(context).size.height;
+    final width=MediaQuery.of(context).size.width;
+    await showDialog(
         context: context,
-        builder: (ctx) => AlertDialog(
-          title: Text('Error Accured'),
-          content: Text(msg.toString()),
-          actions: <Widget>[
-            TextButton(
-              child: Text('Okay'),
-              onPressed: (){
-                Navigator.of(ctx).pop();
-              },
+        builder: (ctx) =>
+
+            AlertDialog(
+              backgroundColor: Color(0xff111111),
+              title: BuildItalicText(txt: "An Error Occured", fontsize: 0.028),
+              content: BuildWhiteMuiliText(txt: msg, fontsize: 0.018),
+              actions: <Widget>[
+                TextButton(
+                  child: BuildItalicTextwhite(txt: "Okay", fontsize: 0.023),
+                  onPressed: () {
+                    Navigator.of(ctx).pop();
+                  },
+                )
+              ],
             )
-          ],
-        )
+
     );
+
   }
 
 
@@ -100,6 +106,7 @@ print("Hello");
         setState(() {
           isloading=false;
         });
+        print("amna jaan");
         print("failed "+error.toString());
         _showErrorDialog(error.toString());
       });
@@ -107,7 +114,11 @@ print("Hello");
      setState(() {
        isloading=false;
      });
-     _showErrorDialog(err.toString());
+
+     var data=err.toString().split("] ");
+
+
+     _showErrorDialog(data[1].toString());
     });}
 
   @override

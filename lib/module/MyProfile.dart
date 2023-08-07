@@ -3,7 +3,7 @@ import 'package:saintconnect/module/view.dart';
 class MyProfile{
   String ? profile_image;
   String ? logo;
-  String ? qrcode;
+  MyQrCode ? qrcode;
   YourDetails ? your_details;
   List<SocialMedia> ? personal_connection=[];
   List<SocialMedia> ? business_connection=[];
@@ -59,8 +59,9 @@ class SocialMedia{
   final String ? media;
   final String ? url;
   final String ? title;
+  final String ? profile_handle;
 
-  SocialMedia({this.media,this.url,required this.title});
+  SocialMedia({this.media,this.url,required this.title,required this.profile_handle});
 }
 class YourDetails{
   String ? name;
@@ -82,7 +83,22 @@ class CustomColor{
    String ? hexcode;
   CustomColor({  required  this.hexcode});
 }
+class MyQrCode{
 
+  String ? docid;
+  String ? image;
+  String ? golden_image;
+  String ?  secondarycolor;
+  String ? backgroundcolor;
+  MyQrCode({  required  this.docid,
+    required
+    this.image,
+    required
+    this.secondarycolor,
+ required  this.backgroundcolor,
+    this.golden_image
+  });
+}
 class Design_Appearance
 {
   CustomColor  ? BackgroundTheme;

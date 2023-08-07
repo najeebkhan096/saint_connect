@@ -246,7 +246,7 @@ class _QrCodeState extends State<QrCode> {
                                                                 fontWeight: FontWeight.w500
 
                                                             ),),
-                                                          Text("\$4.46",
+                                                          Text("\£3.99",
 
                                                             style: TextStyle(
                                                               color: Colors.black,
@@ -281,7 +281,7 @@ class _QrCodeState extends State<QrCode> {
                                                             fontWeight: FontWeight.w700
 
                                                         ),),
-                                                      Text("\$3.12 (20% off)",
+                                                      Text("\£38.30 (20% off)",
 
                                                         style: TextStyle(
                                                           color: Colors.black,
@@ -337,7 +337,7 @@ class _QrCodeState extends State<QrCode> {
                                                               fontWeight: FontWeight.w700
 
                                                           ),),
-                                                        Text("\$3.12 (20% off)",
+                                                        Text("\£38.30 (20% off)",
 
                                                           style: TextStyle(
                                                             color: Colors.black,
@@ -371,7 +371,7 @@ class _QrCodeState extends State<QrCode> {
                                                               fontWeight: FontWeight.w500
 
                                                           ),),
-                                                        Text("\$4.46",
+                                                        Text("\£3.99",
 
                                                           style: TextStyle(
                                                             color: Colors.black,
@@ -393,11 +393,11 @@ class _QrCodeState extends State<QrCode> {
                                           InkWell(
                                             onTap: ()async{
                                               if(year){
-                                                totalamount=3.12;
+                                                totalamount=38.30;
 
                                               }
                                               else{
-                                                totalamount=4.46;
+                                                totalamount=3.99;
                                               }
                                               await makePayment(context: context,desired_profiledocid: desired_profiledocid);
 
@@ -414,7 +414,7 @@ class _QrCodeState extends State<QrCode> {
                                                 mainAxisAlignment: MainAxisAlignment.center,
                                                 children: [
 
-                                                  Text("Subscribe",style: TextStyle(
+                                                  Text("Create Profile",style: TextStyle(
                                                       color: Colors.black,
                                                       fontSize: height*0.025,
                                                       fontWeight: FontWeight.w400
@@ -487,7 +487,7 @@ class _QrCodeState extends State<QrCode> {
 
       paymentIntentData = await createPaymentIntent(
         amount:totalamount.toString(),
-        currency: 'USD',
+        currency: 'gbp',
 
       ); //json.decode(response.body);
       // print('Response body==>${response.body.toString()}');
@@ -595,10 +595,11 @@ class _QrCodeState extends State<QrCode> {
   Future<void> share(String desireduserid) async {
     await FlutterShare.share(
         title: 'Saint Connect',
-        text: 'Visit the profile',
-        linkUrl: 'https://saint-connect.webflow.io/profile?uid${desireduserid}',
+        text: '',
+        linkUrl: 'https://www.saintconnect.info/profile?uid=${desireduserid}',
         chooserTitle: 'Saint Connect'
     );
+
   }
   String ? _show_delete ( String docid )
   {
@@ -657,7 +658,7 @@ class _QrCodeState extends State<QrCode> {
     final height=MediaQuery.of(context).size.height;
 
     final width=MediaQuery.of(context).size.width;
-
+print("my id is "+currentuser!.uid.toString());
     return Scaffold(
 
       bottomNavigationBar: Qr_Code_bottom_Navigation_Bar(),
@@ -868,7 +869,9 @@ if(myuser.ExpirayDate!.isAfter(DateTime.now())){
 
   Navigator.of(context).push(MaterialPageRoute(builder: (context){
     return Editprofile(desiredprofile: myuser);
-  })).then((value)  {
+  })).then((value)  async{
+    currentuser_MyProfile =
+    await database.fetch_first_profile_userid(id: currentuser!.uid!);
     setState(() {
 
     });
@@ -918,11 +921,11 @@ else{
               BuildWhiteMuiliTextBold(txt: myuser.your_details!.name !, fontsize: 0.0265),
               SizedBox(height: height*0.025,),
 
-              (myuser.qrcode!=null && myuser.qrcode!.isNotEmpty)?
+              (myuser.qrcode!.image!=null && myuser.qrcode!.image!.isNotEmpty)?
 
               InkWell(
                 onTap: ()async{
-                  await  launchUrl(Uri.parse("https://saint-connect.webflow.io/profile?uid=${myuser.docid}",
+                  await  launchUrl(Uri.parse("https://www.saintconnect.info/profile?uid=${myuser.docid}",
                   ),
                       mode: LaunchMode.externalApplication
                   );
@@ -931,7 +934,7 @@ else{
                   height: 164,
                   width: 164,
                   decoration: BoxDecoration(
-                    image: DecorationImage(image: NetworkImage(myuser.qrcode!),
+                    image: DecorationImage(image: NetworkImage(myuser.qrcode!.golden_image!),
                     fit: BoxFit.cover
                     )
                   ),
@@ -960,7 +963,7 @@ else{
 
                 onTap: () async {
                   database.update_profile_platform(profiledoc: myuser.docid,platforms: myuser.platforms!);
-                await share(myuser.uid!);
+                await share(myuser.docid!);
 
                 },
                 child: Container(
@@ -1001,376 +1004,367 @@ else{
       ),
       ),
       backgroundColor: addbg,
-      builder: (context) {
-      return StatefulBuilder(builder: (BuildContext context,StateSetter  setModalState){
-      return Container(
-      height: height*0.8,
-
-      decoration: BoxDecoration(
-      color: Color(0xff2A2A2A),
-      boxShadow: [
-      BoxShadow(
-      color: Color(0xffDAC07A),
-      blurRadius: 10
-      )
-      ],
-      borderRadius: BorderRadius.only(
-      topLeft: Radius.circular(50),
-      topRight: Radius.circular(50)
-      )
-      ),
-
-      child: Stack(
-
-      children: [
-
-      Container(
-        margin: EdgeInsets.only(left: width*0.05,right: width*0.05,top: height*0.05),
-
-      child: ListView(
-
-      children: [
-
-
-
-
-      Container(
-      margin: EdgeInsets.only(right: width*0.025,top: height*0.025),
-      child: Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-      Text(""),
-
-      Row(
-      children: [
-      Image.asset("images/logo.png",height: height*0.05,),
-      SizedBox(width: width*0.025,),
-      BuildItalicText(txt: "Connect", fontsize: 0.0358),
-      ],
-      ),
-
-      InkWell(
-      onTap: (){
-      Navigator.of(context).pop();
-      },
-      child: Image.asset("images/close.png",color: Colors.white,height: height*0.025)),
-
-      ],
-      ),
-      ),
-
-      SizedBox(height: height*0.05,),
-
-      BuildItalicText(txt: "Add a new member", fontsize: 0.0358),
-      SizedBox(height: height*0.01,),
-      BuildWhiteMuiliText(txt: "Add a new profile to your team! You have access to add your new profile to any existing physical card or just stick to the digital life! ", fontsize: 0.02),
-
-      SizedBox(height: height*0.025,),
-      Center(
-      child: Container(
-
-      width: width*0.6,
-      height: height*0.23,
-      decoration: BoxDecoration(
-
-      border: Border.all(
-      color: mycolor
-      ),
-      ),
-
-      child: Image.asset("images/Saint-Animation.gif",fit: BoxFit.fill,)
-      ),
-      ),
-
-      SizedBox(height: height*0.05,),
-
-      BuildItalicText(txt: "Access to all of the benefits", fontsize: 0.0358),
-      SizedBox(height: height*0.01,),
-      BuildWhiteMuiliText(txt: "Add a new profile to your team! You have access to add your new profile to any existing physical card or just stick to the digital life! ", fontsize: 0.02),
-      SizedBox(height: height*0.05,),
-      Container(
-
-      width: width*0.6,
-      height: height*0.23,
-      decoration: BoxDecoration(
-
-      border: Border.all(
-      color: mycolor
-      ),
-      ),
-
-      child: Image.asset("images/Saint-Animation.gif",fit: BoxFit.fill,)
-
-      ),
-      SizedBox(height: height*0.05,),
-
-      BuildItalicText(txt: "Cancel Anytime", fontsize: 0.0358),
-      SizedBox(height: height*0.01,),
-      BuildWhiteMuiliText(txt: "Worried about the member leaving? No need to worries as with Saint Connect you can cancel any time. No commitment, no contracts. ", fontsize: 0.02),
-      SizedBox(height: height*0.025,),
-
-
-
-      BuildItalicText(txt: "Get Started", fontsize: 0.0358),
-      SizedBox(height: height*0.01,),
-      BuildWhiteMuiliText(txt: "Worried about the member leaving? No need to worries as with Saint Connect you can cancel any time. No commitment, no contracts. ", fontsize: 0.02),
-      SizedBox(height: height*0.05,),
-      Container(
-
-      width: width*0.6,
-      height: height*0.23,
-      decoration: BoxDecoration(
-
-      border: Border.all(
-      color: mycolor
-      ),
-      ),
-      child: Image.asset("images/Saint-Animation.gif",fit: BoxFit.fill,)
-      ),
-      SizedBox(height: height*0.3,),
-
-
-      ],
-      ),
-      ),
-      Positioned(
-      bottom: 0,
-      width: width*1,
-      child: Container(
-      padding: EdgeInsets.only(bottom: height*0.05,top: height*0.05),
-      color: Color(0xff3D3D3D),
-      child: Column(
-      children: [
-      year?
-      Container(
-      margin: EdgeInsets.only(left: width*0.075,right: width*0.075),
-
-      width: width*1,
-      height: height*0.057,
-      child: Stack(
-      children: [
-
-      Positioned(
-      right: 0,
-      child: InkWell(
-      onTap: (){
-      setState((){
-      year=false;
-      });
-      setModalState((){
-      year=false;
-      });
-      },
-      child: Container(
-      width: width*0.48,
-      height: height*0.057,
-      decoration: BoxDecoration(
-      color: Color(0xffE8E8E8),
-      borderRadius: BorderRadius.circular(20)
-      ),
-      child:  Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-      Text("Monthly",
-
-      style: TextStyle(
-      color: Colors.black,
-      fontFamily: 'Muli-Regular',
-      fontSize: height*(0.02),
-      fontWeight: FontWeight.w500
-
-      ),),
-      Text("\$4.46",
-
-      style: TextStyle(
-      color: Colors.black,
-      fontWeight: FontWeight.w500,
-      fontFamily: 'Muli-Regular',
-      fontSize: height*(0.015),
-
-      ),),
-      ],
-      ),
-      ),
-      ),
-      ),
-
-
-      Container(
-      height: height*0.075,
-      width: width*0.48,
-      decoration: BoxDecoration(
-      color: Colors.white,
-      borderRadius: BorderRadius.circular(20)
-      ),
-      child:  Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-      Text("Yearly",
-
-      style: TextStyle(
-      color: Colors.black,
-      fontFamily: 'Muli-Regular',
-      fontSize: height*(0.02),
-      fontWeight: FontWeight.w500
-
-      ),),
-      Text("\$3.12 (20% off)",
-
-      style: TextStyle(
-      color: Colors.black,
-      fontWeight: FontWeight.w500,
-      fontFamily: 'Muli-Regular',
-      fontSize: height*(0.015),
-
-      ),),
-      ],
-      ),
-      ),
-
-
-      ],
-      ),
-      )
-          :
-      Container(
-      margin: EdgeInsets.only(left: width*0.025,right: width*0.025),
-
-      width: width*1,
-      height: height*0.057,
-      child: Stack(
-      children: [
-
-
-      InkWell(
-      onTap: (){
-      setState((){
-      year=true;
-      });
-      setModalState((){
-      year=true;
-      });
-      },
-      child: Container(
-      margin: EdgeInsets.only(left: width*0.05),
-      height: height*0.07,
-      width: width*0.45,
-      decoration: BoxDecoration(
-      color: Color(0xffE8E8E8),
-      borderRadius: BorderRadius.circular(20)
-      ),
-      child:  Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-      Text("Years",
-
-      style: TextStyle(
-      color: Colors.black,
-      fontFamily: 'Muli-Regular',
-      fontSize: height*(0.02),
-      fontWeight: FontWeight.w500
-
-      ),),
-      Text("\$3.12 (20% off)",
-
-      style: TextStyle(
-      color: Colors.black,
-      fontWeight: FontWeight.w500,
-      fontFamily: 'Muli-Regular',
-      fontSize: height*(0.015),
-
-      ),),
-      ],
-      ),
-      ),
-      ),
-      Positioned(
-      right: width*0.05,
-      child: Container(
-      width: width*0.48,
-      height: height*0.057,
-      decoration: BoxDecoration(
-      color: Colors.white,
-      borderRadius: BorderRadius.circular(20)
-      ),
-      child:  Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-      Text("Monthly",
-
-      style: TextStyle(
-      color: Colors.black,
-      fontFamily: 'Muli-Regular',
-      fontSize: height*(0.02),
-      fontWeight: FontWeight.w500
-
-      ),),
-      Text("\$4.46",
-
-      style: TextStyle(
-      color: Colors.black,
-      fontWeight: FontWeight.w500,
-      fontFamily: 'Muli-Regular',
-      fontSize: height*(0.015),
-
-      ),),
-      ],
-      ),
-      ),
-      ),
-
-      ],
-      ),
-      ),
-
-      SizedBox(height: height*0.05,),
-      InkWell(
-      onTap: ()async{
-      if(year){
-      totalamount=3.12;
-
-      }
-      else{
-      totalamount=4.46;
-      }
-      await makePayment(context: context,desired_profiledocid: myuser.docid);
-
-      },
-      child: Container(
-      height: height*0.07,
-      width: width*1,
-      margin: EdgeInsets.only(left: width*0.1,right: width*0.1),
-      decoration: BoxDecoration(
-      color: Colors.white,
-      borderRadius: BorderRadius.circular(30)
-      ),
-      child: Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-
-      Text("Subscribe",style: TextStyle(
-      color: Colors.black,
-      fontSize: height*0.025,
-      fontWeight: FontWeight.w400
-
-
-      )),
-      ],
-      ),
-      ),
-      ),
-
-      ],
-      ),
-      ),
-      ),
-
-
-      ],
-      ),
-      );
-      });
-      },
+        builder: (context) {
+          return StatefulBuilder(builder: (BuildContext context,StateSetter  setModalState){
+            return Container(
+              height: height*0.8,
+
+              decoration: BoxDecoration(
+                  color: Color(0xff2A2A2A),
+                  boxShadow: [
+                    BoxShadow(
+                        color: Color(0xffDAC07A),
+                        blurRadius: 10
+                    )
+                  ],
+                  borderRadius: BorderRadius.only(
+                      topLeft: Radius.circular(50),
+                      topRight: Radius.circular(50)
+                  )
+              ),
+
+              child: Stack(
+
+                children: [
+
+                  Container(
+                    margin: EdgeInsets.only(left: width*0.05,right: width*0.05,top: height*0.05),
+
+                    child: ListView(
+
+                      children: [
+
+                        Container(
+                          margin: EdgeInsets.only(right: width*0.025),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(""),
+
+                              Row(
+                                children: [
+                                  Image.asset("images/logo.png",height: height*0.05,),
+                                  SizedBox(width: width*0.025,),
+                                  BuildItalicText(txt: "Connect", fontsize: 0.0358),
+                                ],
+                              ),
+
+                              InkWell(
+                                  onTap: (){
+                                    Navigator.of(context).pop();
+                                  },
+                                  child: Image.asset("images/close.png",color: Colors.white,height: height*0.025)),
+
+                            ],
+                          ),
+                        ),
+                        SizedBox(height: height*0.05,),
+                        BuildItalicText(txt: "Add a new member", fontsize: 0.0358),
+                        SizedBox(height: height*0.01,),
+                        BuildWhiteMuiliText(txt: "Add a new profile to your team! You have access to add your new profile to any existing physical card or just stick to the digital life! ", fontsize: 0.02),
+                        SizedBox(height: height*0.05,),
+
+                        Center(
+                          child: Container(
+
+                              width: width*0.6,
+                              height: height*0.35,
+                              decoration: BoxDecoration(
+
+                                border: Border.all(
+                                    color: mycolor
+                                ),
+                              ),
+                              child: Image.asset("images/getstarted.gif",fit: BoxFit.fill,)
+                          ),
+                        ),
+                        SizedBox(height: height*0.05,),
+                        BuildItalicText(txt: "Access to all of the benefits", fontsize: 0.0358),
+                        SizedBox(height: height*0.01,),
+                        BuildWhiteMuiliText(txt: "Add a new profile to your team! You have access to add your new profile to any existing physical card or just stick to the digital life! ", fontsize: 0.02),
+                        SizedBox(height: height*0.05,),
+                        Center(
+                          child: Container(
+                              width: width*0.6,
+                              height: height*0.35,
+                              decoration: BoxDecoration(
+
+                                border: Border.all(
+                                    color: mycolor
+                                ),
+                              ),
+
+                              child: Image.asset("images/Connect a card.gif",fit: BoxFit.fill,)
+
+                          ),
+                        ),
+                        SizedBox(height: height*0.05,),
+                        BuildItalicText(txt: "Cancel Anytime", fontsize: 0.0358),
+                        SizedBox(height: height*0.01,),
+                        BuildWhiteMuiliText(txt: "Worried about the member leaving? No need to worries as with Saint Connect you can cancel any time. No commitment, no contracts. ", fontsize: 0.02),
+                        SizedBox(height: height*0.025,),
+                        BuildItalicText(txt: "Get Started", fontsize: 0.0358),
+                        SizedBox(height: height*0.01,),
+                        BuildWhiteMuiliText(txt: "Worried about the member leaving? No need to worries as with Saint Connect you can cancel any time. No commitment, no contracts. ", fontsize: 0.02),
+                        SizedBox(height: height*0.05,),
+                        Center(
+                          child: Container(
+
+                              width: width*0.6,
+                              height: height*0.35,
+                              decoration: BoxDecoration(
+
+                                border: Border.all(
+                                    color: mycolor
+                                ),
+                              ),
+                              child: Image.asset("images/welcome.gif",fit: BoxFit.fill,)
+                          ),
+                        ),
+                        SizedBox(height: height*0.3,),
+
+
+                      ],
+                    ),
+                  ),
+                  Positioned(
+                    bottom: 0,
+                    width: width*1,
+                    child: Container(
+                      padding: EdgeInsets.only(bottom: height*0.05,top: height*0.05),
+                      color: Color(0xff3D3D3D),
+                      child: Column(
+                        children: [
+                          year?
+                          Container(
+                            margin: EdgeInsets.only(left: width*0.075,right: width*0.075),
+
+                            width: width*1,
+                            height: height*0.057,
+                            child: Stack(
+                              children: [
+
+                                Positioned(
+                                  right: 0,
+                                  child: InkWell(
+                                    onTap: (){
+                                      setState((){
+                                        year=false;
+                                      });
+                                      setModalState((){
+                                        year=false;
+                                      });
+                                    },
+                                    child: Container(
+                                      width: width*0.48,
+                                      height: height*0.057,
+                                      decoration: BoxDecoration(
+                                          color: Color(0xffE8E8E8),
+                                          borderRadius: BorderRadius.circular(20)
+                                      ),
+                                      child:  Column(
+                                        mainAxisAlignment: MainAxisAlignment.center,
+                                        children: [
+                                          Text("Monthly",
+
+                                            style: TextStyle(
+                                                color: Colors.black,
+                                                fontFamily: 'Muli-Regular',
+                                                fontSize: height*(0.02),
+                                                fontWeight: FontWeight.w700
+
+                                            ),),
+                                          Text("\£3.99",
+
+                                            style: TextStyle(
+                                              color: Colors.black,
+                                              fontWeight: FontWeight.w500,
+                                              fontFamily: 'Muli-Regular',
+                                              fontSize: height*(0.015),
+
+                                            ),),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                ),
+
+
+                                Container(
+                                  height: height*0.075,
+                                  width: width*0.48,
+                                  decoration: BoxDecoration(
+                                      color: Colors.white,
+                                      borderRadius: BorderRadius.circular(20)
+                                  ),
+                                  child:  Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Text("Yearly",
+
+                                        style: TextStyle(
+                                            color: Colors.black,
+                                            fontFamily: 'Muli-Regular',
+                                            fontSize: height*(0.02),
+                                            fontWeight: FontWeight.w700
+
+                                        ),),
+                                      Text("\£38.30 (20% off)",
+
+                                        style: TextStyle(
+                                          color: Colors.black,
+                                          fontWeight: FontWeight.w500,
+                                          fontFamily: 'Muli-Regular',
+                                          fontSize: height*(0.015),
+
+                                        ),),
+                                    ],
+                                  ),
+                                ),
+
+
+                              ],
+                            ),
+                          )
+                              :
+                          Container(
+                            margin: EdgeInsets.only(left: width*0.025,right: width*0.025),
+
+                            width: width*1,
+                            height: height*0.057,
+                            child: Stack(
+                              children: [
+
+
+                                InkWell(
+                                  onTap: (){
+                                    setState((){
+                                      year=true;
+                                    });
+                                    setModalState((){
+                                      year=true;
+                                    });
+                                  },
+                                  child: Container(
+                                    margin: EdgeInsets.only(left: width*0.05),
+                                    height: height*0.07,
+                                    width: width*0.45,
+                                    decoration: BoxDecoration(
+                                        color: Color(0xffE8E8E8),
+                                        borderRadius: BorderRadius.circular(20)
+                                    ),
+                                    child:  Column(
+                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      children: [
+                                        Text("Yearly",
+
+                                          style: TextStyle(
+                                              color: Colors.black,
+                                              fontFamily: 'Muli-Regular',
+                                              fontSize: height*(0.02),
+                                              fontWeight: FontWeight.w700
+
+                                          ),),
+                                        Text("\£38.30 (20% off)",
+
+                                          style: TextStyle(
+                                            color: Colors.black,
+                                            fontWeight: FontWeight.w500,
+                                            fontFamily: 'Muli-Regular',
+                                            fontSize: height*(0.015),
+
+                                          ),),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                                Positioned(
+                                  right: width*0.05,
+                                  child: Container(
+                                    width: width*0.48,
+                                    height: height*0.057,
+                                    decoration: BoxDecoration(
+                                        color: Colors.white,
+                                        borderRadius: BorderRadius.circular(20)
+                                    ),
+                                    child:  Column(
+                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      children: [
+                                        Text("Monthly",
+
+                                          style: TextStyle(
+                                              color: Colors.black,
+                                              fontFamily: 'Muli-Regular',
+                                              fontSize: height*(0.02),
+                                              fontWeight: FontWeight.w700
+
+                                          ),),
+                                        Text("\£3.99",
+
+                                          style: TextStyle(
+                                            color: Colors.black,
+                                            fontWeight: FontWeight.w500,
+                                            fontFamily: 'Muli-Regular',
+                                            fontSize: height*(0.015),
+
+                                          ),),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+
+                              ],
+                            ),
+                          ),
+
+                          SizedBox(height: height*0.05,),
+                          InkWell(
+                            onTap: ()async{
+                              if(year){
+                                totalamount=38.30;
+
+                              }
+                              else{
+                                totalamount=3.99;
+                              }
+                              await makePayment(desired_profiledocid:myuser.docid ,context:context );
+
+                            },
+                            child: Container(
+                              height: height*0.07,
+                              width: width*1,
+                              margin: EdgeInsets.only(left: width*0.1,right: width*0.1),
+                              decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(30)
+                              ),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+
+                                  Text("Create Profile",style: TextStyle(
+                                      color: Colors.black,
+                                      fontSize: height*0.025,
+                                      fontWeight: FontWeight.w400
+
+
+                                  )),
+                                ],
+                              ),
+                            ),
+                          ),
+
+                        ],
+                      ),
+                    ),
+                  ),
+
+
+                ],
+              ),
+            );
+          });
+        },
       ).then((value) {
       if(value==true ){
       setState(() {

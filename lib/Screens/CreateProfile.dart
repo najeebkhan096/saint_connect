@@ -1,5 +1,12 @@
 import 'dart:io';
 import 'dart:typed_data';
+import 'package:http/http.dart' as http;
+import 'package:flutter_contacts/contact.dart';
+import 'package:flutter_contacts/flutter_contacts.dart' as contacts;
+import 'package:flutter_contacts/properties/address.dart';
+import 'package:flutter_contacts/properties/phone.dart';
+import 'package:saintconnect/Screens/profile_created.dart';
+import 'package:saintconnect/widgets/bottomnavigattionbar.dart';
 import 'package:youtube_explode_dart/youtube_explode_dart.dart';
 import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
@@ -20,7 +27,7 @@ import 'package:saintconnect/widgets/wrapper.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:screenshot/screenshot.dart';
-import 'package:vcard_maintained/vcard_maintained.dart';
+// import 'package:vcard_maintained/vcard_maintained.dart';
 import 'package:video_compress/video_compress.dart';
 import 'package:video_thumbnail/video_thumbnail.dart';
 
@@ -91,8 +98,8 @@ class _CreateprofileState extends State<Createprofile> {
   ];
 
 
-  ///Create a new vCard
-  var mycard = VCard();
+  // ///Create a new vCard
+  // var mycard = VCard();
   List<String> social=[
     'https://firebasestorage.googleapis.com/v0/b/saintconnect-9c0c9.appspot.com/o/Social_Icons%2FFacebook.png?alt=media&token=c977d16c-d397-430a-a6fe-071f6b360a53',
     'https://firebasestorage.googleapis.com/v0/b/saintconnect-9c0c9.appspot.com/o/Social_Icons%2FInstagram.png?alt=media&token=de91ca17-da19-4dd4-809c-f089f1592aae',
@@ -103,7 +110,6 @@ class _CreateprofileState extends State<Createprofile> {
     'https://firebasestorage.googleapis.com/v0/b/saintconnect-9c0c9.appspot.com/o/Social_Icons%2FLinkedin.png?alt=media&token=2b83f447-51e5-434a-adc4-16c990238c75',
     'https://firebasestorage.googleapis.com/v0/b/saintconnect-9c0c9.appspot.com/o/Social_Icons%2FYoutube.png?alt=media&token=f199925a-e704-4f14-b781-60c8fab1a8c3',
     'https://firebasestorage.googleapis.com/v0/b/saintconnect-9c0c9.appspot.com/o/Social_Icons%2FSafari.png?alt=media&token=df49bbf4-49e5-41dd-ae3d-bc2e388584eb'
-
 
   ];
 
@@ -121,6 +127,7 @@ class _CreateprofileState extends State<Createprofile> {
 
     setState(() => pickerColor = color);
   }
+
 
   Future _pickcolor({required String ? title})async {
 
@@ -191,71 +198,13 @@ class _CreateprofileState extends State<Createprofile> {
   FocusNode final_button_url=FocusNode();
   FocusNode personnelconn_title=FocusNode();
   FocusNode businessconn_title=FocusNode();
-
   FocusNode businessname=FocusNode();
   FocusNode contractor=FocusNode();
   FocusNode webiste=FocusNode();
   FocusNode businesscompany=FocusNode();
-
-
   //Create an instance of ScreenshotController
   ScreenshotController screenshotController = ScreenshotController();
-  File ? myfile;
-  String ? QRImage='';
-  Widget Qrimage(){
-    return Screenshot(
-      controller: screenshotController,
-      child: QrImage(
-        data: currentuser!.uid!,
-        version: QrVersions.auto,
-        size: 200,
-        gapless: false,
-      ),
-    );
-  }
-
-//   Future GenerateQRCode(String documentid)async{
-// print("jaan"+documentid.toString());
-//     final Uint8List ? image=await screenshotController.captureFromWidget(Qrimage());
-//
-//     if(image!=null){
-//       final tempDir = await getTemporaryDirectory();
-//       final file = await new File('${tempDir.path}/$user_id.jpg').create();
-//       file.writeAsBytesSync(image);
-//       setState(() {
-//         myfile=file;
-//       });
-//       print("kwas");
-//
-//     }
-//     else{
-//       print("khali");
-//     }
-//   }
-//
-
-
-  Future uploadQR() async {
-    try{
-      ref = firebase_storage.FirebaseStorage.instance
-          .ref()
-          .child('QRCode/${Path.basename(myfile!.path)}');
-      await ref!.putFile(myfile!).whenComplete(() async {
-        await ref!.getDownloadURL().then((value) async{
-          QRImage=value;
-          setState(() {
-            createpercentage=0.5;
-          });
-        });
-      });
-    }
-    catch(error){
-
-    }
-
-  }
   CollectionReference ? imgRef;
-
   firebase_storage.Reference ? ref;
   Future<String?> upload_my_file({File ? myfile}) async {
     String ? got_image;
@@ -277,7 +226,7 @@ class _CreateprofileState extends State<Createprofile> {
     String ? got_image;
     ref = firebase_storage.FirebaseStorage.instance
         .ref()
-        .child('${"vcf"}/${Path.basename(myfile!.path)}');
+        .child('${"myvcf"}/${Path.basename(myfile!.path)}');
     await ref!.putFile(myfile).whenComplete(() async {
       await ref!.getDownloadURL().then((imageurl) {
         if(imageurl!=null){
@@ -369,20 +318,28 @@ class _CreateprofileState extends State<Createprofile> {
                           onTap: ()async{
 
                             if(social.length==index+1) {
+                              _media_url.text="https://";
                               await _custom_media( choice: 'Custom URL',personel: personel);
 
                             }
                             else{
+
+                              if(index!=4){
+                                _media_url.text="https://";
+                              }
+                              else{
+                                _media_url.clear();
+                              }
 
                               await _enter_media(choice: social[index], personel: personel,social_media_name:
                               index==0?"Facebook":
                               index==1?"Instagram":
                               index==2?"Snapchat":
                               index==3?"Twitter":
-                              index==4?"Whatssapp":
+                              index==4?"WhatsApp":
                               index==5?"Spotify":
-                              index==6?"Linkedin":
-                              index==7?"Youtube":
+                              index==6?"LinkedIn":
+                              index==7?"YouTube":
                               "Custom URL"
                               );
 
@@ -484,9 +441,6 @@ class _CreateprofileState extends State<Createprofile> {
       return;
     }
     _formKey.currentState!.save();
-    setState(() {
-      isloading=true;
-    });
 
     calculatepercentage();
     RegExp emailRegex = RegExp(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$');
@@ -524,12 +478,328 @@ class _CreateprofileState extends State<Createprofile> {
       _showErrorDialog("Please enter a valid link. For example https://www.saintconnect.info");
     }
     else{
+      setState(() {
+        isloading=true;
+      });
+
       if(videocontroller.text.isNotEmpty){
         createprofile!.video=videocontroller.text;
       }
       else{
         createprofile!.video='';
       }
+      setState(() {
+        createpercentage=0.1;
+      });
+if(profile_file!=null || logo_file!=null){
+
+if(profile_file!=null){
+
+  await  upload_my_file(myfile: profile_file).then((value) async{
+
+    profile_url=value;
+
+
+    setState(() {
+      createpercentage=0.25;
+    });
+
+    if(logo_file!=null){
+      setState(() {
+        createpercentage=0.25;
+      });
+      await  upload_my_file(myfile: logo_file).then((logovalue) async {
+
+        company_logo=logovalue;
+
+        setState(() {
+          createpercentage=0.4;
+        });
+      createprofile=
+          MyProfile(
+            personal_connection_title: createprofile!.personal_connection_title,
+            businesss_connection_title: createprofile!.businesss_connection_title,
+            final_button: createprofile!.final_button,
+            payment: true,
+            // year: team?false:true,
+            business_connection: business_connections,
+            profile_image:    profile_url,
+            ExpirayDate: createprofile!.ExpirayDate,
+            logo:    company_logo,
+            your_details: mydetail,
+            personal_connection:
+            personal_connections,
+            Accreditation: accreditation_images,
+            business_details: businessdetail, design_appearance: design_appearance,
+            Backgroundimage:    bg_image_url,
+            images: images_url,
+            video:  createprofile!.video,
+            uid: currentuser!.uid,
+            vcf_url: ''
+            // qrcode: currentuser!.qr_image,
+          );
+
+
+//This will add new profile for desired uid
+            await database.add_profile (createprofile!).then((profiledocid) async{
+              setState(() {
+                createpercentage=0.6;
+              });
+
+              await writeCounter(profiledocid!).then((myvcfile)async {
+                try {
+
+
+                  ///save to file
+
+                  await  upload_vcf_file(myfile: myvcfile).then((vcf_image_url) async{
+
+                    createprofile!.vcf_url=vcf_image_url.toString();
+                    database.update_profile_vcf(vcfurl: vcf_image_url!, docid: profiledocid  );
+                    setState(() {
+                      createpercentage=0.5;
+                    });
+                  });
+
+
+                } catch (e) {
+                  // If encountering an error, return 0
+
+                }
+              });
+
+
+              //second color
+              await database.GenerateQRCode( documentid: profiledocid,context: context,
+              qrcolor: Color(int.parse(bordercolors[0])),
+                backgroundgcolor: Color(int.parse(bgcolors[0])),
+              ).then((secondary_file) async {
+
+                //golden qr
+                await database.GenerateGoldenQRCode( documentid: profiledocid,context: context,
+
+                ).then((golden_img_file) async{
+
+                  await database.uploadGoldenprofileQR
+                    (mycode:
+                  MyQrCode(docid: profiledocid,
+                    image: '', secondarycolor: bordercolors[0],
+                    backgroundcolor: bgcolors[0],
+                  ),
+                      myfile: golden_img_file
+
+                  ).then((golden_img_url) async{
+                    setState(() {
+                      createpercentage=0.7;
+                    });
+                    await database.uploadprofileQR
+                      (mycode:
+                    MyQrCode(docid: profiledocid,
+                      image: '', secondarycolor: bordercolors[0],
+                      backgroundcolor: bgcolors[0],
+                    ),
+                        myfile: secondary_file
+
+                    ).then((secondory_qr_image_url) async{
+
+                      await database.update_profile_qrcode(mycode:
+                      MyQrCode(docid: profiledocid,
+                        image: secondory_qr_image_url, secondarycolor: bordercolors[0],
+                        backgroundcolor: bgcolors[0],
+                        golden_image: golden_img_url
+                      )
+                      )
+                          .then((value) {
+
+                      });
+                      setState(() {
+                        createpercentage=0.75;
+                      });
+                      await database.update_user_payment(
+                        status: false,
+                        profile_created: true,
+                      ).then((value) {
+                        setState(() {
+                          createpercentage=0.8;
+                        });
+                        setState(() {
+                          isloading=false;
+                          createpercentage=1;
+                        });
+                        currentuser!.payment=false;
+
+                        Navigator.of(context).pushReplacementNamed(ProfileCreated.routename,
+                            arguments: createprofile);
+
+
+                      });
+                    });
+
+                  })  ;
+                });
+
+
+              });
+
+
+            });
+
+
+
+
+
+      });
+    }
+    else{
+      setState(() {
+        createpercentage=0.4;
+      });
+      createprofile=
+          MyProfile(
+              personal_connection_title: createprofile!.personal_connection_title,
+              businesss_connection_title: createprofile!.businesss_connection_title,
+              final_button: createprofile!.final_button,
+              payment: true,
+              // year: team?false:true,
+              business_connection: business_connections,
+              profile_image:    profile_url,
+              ExpirayDate: createprofile!.ExpirayDate,
+              logo:    company_logo,
+              your_details: mydetail,
+              personal_connection:
+              personal_connections,
+              Accreditation: accreditation_images,
+              business_details: businessdetail, design_appearance: design_appearance,
+              Backgroundimage:    bg_image_url,
+              images: images_url,
+              video:  createprofile!.video,
+              uid: currentuser!.uid,
+              vcf_url: ''
+            // qrcode: currentuser!.qr_image,
+          );
+
+
+//This will add new profile for desired uid
+      await database.add_profile (createprofile!).then((profiledocid) async{
+        setState(() {
+          createpercentage=0.6;
+        });
+
+        await writeCounter(profiledocid!).then((myvcfile)async {
+          try {
+
+
+
+            ///save to file
+
+            await  upload_vcf_file(myfile: myvcfile).then((vcf_image_url) async{
+
+              createprofile!.vcf_url=vcf_image_url.toString();
+              database.update_profile_vcf(vcfurl: vcf_image_url!, docid: profiledocid  );
+              setState(() {
+                createpercentage=0.5;
+              });
+            });
+
+
+          } catch (e) {
+            // If encountering an error, return 0
+_showErrorDialog(e.toString());
+          }
+        });
+
+
+        //second color
+        await database.GenerateQRCode( documentid: profiledocid,context: context,
+          qrcolor: Color(int.parse(bordercolors[0])),
+          backgroundgcolor: Color(int.parse(bgcolors[0])),
+        ).then((secondary_file) async {
+
+          //golden qr
+          await database.GenerateGoldenQRCode( documentid: profiledocid,context: context,
+
+          ).then((golden_img_file) async{
+
+            await database.uploadGoldenprofileQR
+              (mycode:
+            MyQrCode(docid: profiledocid,
+              image: '', secondarycolor: bordercolors[0],
+              backgroundcolor: bgcolors[0],
+            ),
+                myfile: golden_img_file
+
+            ).then((golden_img_url) async{
+              setState(() {
+                createpercentage=0.7;
+              });
+              await database.uploadprofileQR
+                (mycode:
+              MyQrCode(docid: profiledocid,
+                image: '', secondarycolor: bordercolors[0],
+                backgroundcolor: bgcolors[0],
+              ),
+                  myfile: secondary_file
+
+              ).then((secondory_qr_image_url) async{
+
+                await database.update_profile_qrcode(mycode:
+                MyQrCode(docid: profiledocid,
+                    image: secondory_qr_image_url, secondarycolor: bordercolors[0],
+                    backgroundcolor: bgcolors[0],
+                    golden_image: golden_img_url
+                )
+                )
+                    .then((value) {
+
+                });
+                setState(() {
+                  createpercentage=0.75;
+                });
+                await database.update_user_payment(
+                  status: false,
+                  profile_created: true,
+                ).then((value) {
+                  setState(() {
+                    createpercentage=0.8;
+                  });
+                  setState(() {
+                    isloading=false;
+                    createpercentage=1;
+                  });
+                  currentuser!.payment=false;
+
+                  Navigator.of(context).pushReplacementNamed(ProfileCreated.routename,
+                      arguments: createprofile);
+
+
+                });
+              });
+
+            })  ;
+          });
+
+
+        });
+
+
+      });
+
+
+    }
+
+  });
+}else{
+  if(logo_file!=null){
+    setState(() {
+      createpercentage=0.25;
+    });
+
+    await  upload_my_file(myfile: logo_file).then((logovalue) async{
+
+      company_logo=logovalue;
+      setState(() {
+        createpercentage=0.4;
+      });
 
       createprofile=
           MyProfile(
@@ -554,54 +824,239 @@ class _CreateprofileState extends State<Createprofile> {
             // qrcode: currentuser!.qr_image,
           );
 
-      await writeCounter().then((value)async {
-        try {
 
-          final file = await _localFile;
 
-          ///save to file
-
-          await  upload_vcf_file(myfile: file).then((vcf_image_url) async{
-
-            createprofile!.vcf_url=vcf_image_url.toString();
-//lund
-//This will add new profile for desired uid
             await database.add_profile (createprofile!).then((profiledocid) async{
 
-              await database.GenerateQRCode( documentid: profiledocid!,context: context).then((value) async {
-                await database.uploadprofileQR(docid: profiledocid);
+              await writeCounter(profiledocid!).then((myvcfile)async {
+
+                try {
+
+                  await  upload_vcf_file(myfile: myvcfile).then((vcf_image_url) async{
+
+                    createprofile!.vcf_url=vcf_image_url.toString();
+                    database.update_profile_vcf(vcfurl: vcf_image_url!, docid: profiledocid  );
+                    setState(() {
+                      createpercentage=0.5;
+                    });
+                  });
+
+
+                } catch (e) {
+
+                  // If encountering an error, return 0
+print("some ting went wrong "+e.toString());
+                }
               });
 
-          await database.update_user_payment(
-              status: false,
-          profile_created: true,
-          ).then((value) {
-            setState(() {
-              createpercentage=0.75;
+              setState(() {
+                createpercentage=0.5;
+              });
+
+              //second qr
+              await database.GenerateQRCode( documentid: profiledocid,context: context,
+              qrcolor: Color(int.parse(bordercolors[0])),
+                backgroundgcolor: Color(int.parse(bgcolors[0])),
+              ).then((secondary_file) async {
+
+
+                //golden qr
+                await database.GenerateGoldenQRCode( documentid: profiledocid,context: context)
+                    .then((golden_file) async {
+
+
+
+                  await database.uploadGoldenprofileQR(
+                      myfile: golden_file,
+                      mycode:     MyQrCode(docid: profiledocid,
+                        image: '', secondarycolor: createprofile!.design_appearance!.BorderColor!.hexcode!,
+                        backgroundcolor: createprofile!.design_appearance!.BackgroundTheme!.hexcode!,
+                      )).then((golden_image_url) async{
+
+                    setState(() {
+                      createpercentage=0.6;
+                    });
+
+                    await database.uploadprofileQR(
+                        myfile: secondary_file,
+                        mycode:     MyQrCode(docid: profiledocid,
+                          image: '', secondarycolor: createprofile!.design_appearance!.BorderColor!.hexcode!,
+                          backgroundcolor: createprofile!.design_appearance!.BackgroundTheme!.hexcode!,
+                        )).then((secondory_qr_image_url) async{
+
+                      await database.update_profile_qrcode(mycode:
+                      MyQrCode(docid: profiledocid,
+                        image: secondory_qr_image_url, secondarycolor: bordercolors[0],
+                        backgroundcolor: bgcolors[0],
+                        golden_image: golden_image_url
+                      )
+                      ).then((value) async{
+
+                        await database.update_user_payment(
+                          status: false,
+                          profile_created: true,
+                        ).then((value) {
+                          setState(() {
+                            createpercentage=0.85;
+                          });
+                          setState(() {
+                            isloading=false;
+                            createpercentage=1;
+                          });
+                          currentuser!.payment=false;
+                          Navigator.of(context).pushReplacementNamed(ProfileCreated.routename,
+                              arguments: createprofile);
+
+
+                        });
+                        setState(() {
+                          createpercentage=0.7;
+                        });
+                      });
+
+                    });
+                  });
+                });
+
+
+
+              });
+
+
             });
-            setState(() {
-              isloading=false;
-              createpercentage=1;
+
+
+
+    });
+  }
+
+}
+
+}
+
+else{
+  setState(() {
+    createpercentage=0.35;
+  });
+        createprofile=
+          MyProfile(
+            personal_connection_title: createprofile!.personal_connection_title,
+            businesss_connection_title: createprofile!.businesss_connection_title,
+            final_button: createprofile!.final_button,
+            payment: true,
+            // year: team?false:true,
+            business_connection: business_connections,
+            profile_image:    profile_url,
+            ExpirayDate: createprofile!.ExpirayDate,
+            logo:    company_logo,
+            your_details: mydetail,
+            personal_connection:
+            personal_connections,
+            Accreditation: accreditation_images,
+            business_details: businessdetail, design_appearance: design_appearance,
+            Backgroundimage:    bg_image_url,
+            images: images_url,
+            video:  createprofile!.video,
+            uid: currentuser!.uid,
+            // qrcode: currentuser!.qr_image,
+          );
+
+
+//This will add new profile for desired uid
+            await database.add_profile (createprofile!).then((profiledocid) async{
+              await writeCounter(profiledocid!).then((myvcfile)async {
+                try {
+
+
+                  await  upload_vcf_file(myfile: myvcfile).then((vcf_image_url) async{
+
+                    createprofile!.vcf_url=vcf_image_url.toString();
+                    database.update_profile_vcf(vcfurl: vcf_image_url!, docid: profiledocid  );
+                    setState(() {
+                      createpercentage=0.5;
+                    });
+                  });
+
+
+                } catch (e) {
+                  // If encountering an error, return 0
+
+                }
+              });
+
+              setState(() {
+                createpercentage=0.5;
+              });
+              await database.GenerateQRCode( documentid: profiledocid,context: context,
+              qrcolor: Color(int.parse(bordercolors[0])),
+                backgroundgcolor: Color(int.parse(bgcolors[0])),
+              ).then((secondary_file) async {
+
+                //golden qr
+                await database.GenerateGoldenQRCode( documentid: profiledocid,context: context,
+
+                ).then((golden_file) async {
+                  await database.uploadGoldenprofileQR(
+                      myfile: golden_file,
+                      mycode:     MyQrCode(docid: profiledocid,
+                        image: '', secondarycolor: createprofile!.design_appearance!.BorderColor!.hexcode!,
+                        backgroundcolor: createprofile!.design_appearance!.BackgroundTheme!.hexcode!,
+                      ),
+                  ).then((golden_img) async{
+                    setState(() {
+                      createpercentage=0.6;
+                    });
+                    await database.uploadprofileQR(
+                        myfile: secondary_file,
+                        mycode:     MyQrCode(docid: profiledocid,
+                          image: '', secondarycolor: createprofile!.design_appearance!.BorderColor!.hexcode!,
+                          backgroundcolor: createprofile!.design_appearance!.BackgroundTheme!.hexcode!,
+                        )
+
+                    ).then((secondory_qr_image_url) async{
+
+                      await database.update_profile_qrcode(mycode:
+                      MyQrCode(docid: profiledocid,
+                        image: secondory_qr_image_url, secondarycolor: bordercolors[0],
+                        backgroundcolor: bgcolors[0],
+                        golden_image: golden_img
+                      )
+                      );
+                      await database.update_user_payment(
+                        status: false,
+                        profile_created: true,
+                      ).then((value) {
+                        setState(() {
+                          createpercentage=0.9;
+                        });
+                        setState(() {
+                          isloading=false;
+                          createpercentage=1;
+                        });
+                        currentuser!.payment=false;
+                        Navigator.of(context).pushReplacementNamed(ProfileCreated.routename,
+                            arguments: createprofile);
+
+
+                      });
+
+                      setState(() {
+                        createpercentage=0.75;
+                      });
+                    });
+                  });
+                });
+
+
+
+              });
+
+
+
             });
 
-            Navigator.pushNamedAndRemoveUntil(context, Wrapper.routename, (route) => false);
 
-          });
-              // await database.updateser().then((value) async{
-              //
-              // });
-
-            });
-
-          });
-
-
-        } catch (e) {
-          // If encountering an error, return 0
-
-        }
-      });
-
+}
 
     }
 
@@ -626,7 +1081,496 @@ class _CreateprofileState extends State<Createprofile> {
   String ? images='';
 
   TextEditingController _media_url=TextEditingController();
+  TextEditingController _profile_handle=TextEditingController();
   TextEditingController _media_title=TextEditingController();
+
+
+
+
+
+
+
+
+
+
+  Future<File?> _edit_media(
+      {required SocialMedia editmedia, required bool personel}) async {
+
+    _media_url.text=editmedia.url.toString();
+
+    _profile_handle.text=editmedia.profile_handle.toString();
+    final height = MediaQuery
+        .of(context)
+        .size
+        .height;
+    final width = MediaQuery
+        .of(context)
+        .size
+        .width;
+    File ? choosedfile;
+
+    await showDialog(
+        context: context,
+        builder: (ctx) =>
+            AlertDialog(
+                backgroundColor: Color(0xff111111),
+                title: BuildItalicText(txt: editmedia.title, fontsize: 0.025),
+                content: Container(
+                  height: MediaQuery
+                      .of(context)
+                      .size
+                      .height * 0.3,
+                  child: Column(
+                    children: [
+                      Container(
+                        alignment: Alignment.centerLeft,
+                        child: Container(
+                            height: height * 0.054,
+                            width: width * 1,
+
+                            decoration: BoxDecoration(
+                                color: Colors.white,
+
+                                borderRadius: BorderRadius.circular(10)
+                            ),
+                            padding: EdgeInsets.only(left: width * 0.05),
+                            child: TextField(
+                              controller: _media_url,
+                              textAlignVertical: TextAlignVertical.center,
+                              decoration: InputDecoration(
+                                  hintText:    editmedia.media=="WhatsApp"?"Enter your Whatsapp no":
+                                  'Enter your ${editmedia.media} URL',
+                                  border: InputBorder.none,
+                                  hintStyle: TextStyle(
+                                      color: Color(0xff5D5D5D),
+                                      fontFamily: 'Corporate A Italic',
+                                      fontSize: 15
+
+                                  )
+                              ),
+                            )
+                        ),
+
+                      ),
+                      SizedBox(height: height*0.025,),
+
+
+                      Container(
+                        alignment: Alignment.centerLeft,
+                        child: Container(
+                            height: height*0.054,
+                            width: width*1,
+
+                            decoration: BoxDecoration(
+                                color: Colors.white,
+
+                                borderRadius: BorderRadius.circular(10)
+                            ),
+                            padding: EdgeInsets.only(left: width*0.05),
+                            child:  TextField(
+                              controller: _profile_handle,
+                              textAlignVertical: TextAlignVertical.center,
+                              decoration: InputDecoration(
+                                  hintText: 'Enter profile handle',
+                                  border: InputBorder.none,
+                                  hintStyle: TextStyle(
+                                      color: Color(0xff5D5D5D),
+                                      fontFamily: 'Corporate A Italic',
+                                      fontSize: 15
+
+                                  )
+                              ),
+                            )
+                        ),
+
+                      ),
+
+                      SizedBox(height: height * 0.05,),
+
+
+
+                      InkWell(
+                        onTap: (){
+
+                          if(_profile_handle.text.isNotEmpty){
+
+                            if(personel){
+
+                              if(editmedia.title=="WhatsApp"){
+
+                                for (int i=0;i<personal_connections!.length;i++){
+                                  if(personal_connections![i].media==editmedia.media){
+                                    personal_connections![i]=SocialMedia(
+                                        media: editmedia.media,
+                                        url: _media_url.text,
+                                        title:editmedia.title,
+                                        profile_handle: _profile_handle.text
+                                    );
+
+                                    _media_url.clear();
+                                    _profile_handle.clear();
+                                    _media_title.clear();
+                                    Navigator.of(context).pop();
+                                  }
+                                }
+
+                              }
+                              else{
+
+                                if(_media_url.text.isNotEmpty && (_media_url.text.startsWith("HTTPS://") || _media_url.text.startsWith("https://"))){
+
+                                  for (int i=0;i<personal_connections!.length;i++){
+                                    if(personal_connections![i].media==editmedia.media){
+                                      personal_connections![i]=SocialMedia(
+                                          media: editmedia.media,
+                                          url: _media_url.text,
+                                          title:editmedia.title,
+                                          profile_handle: _profile_handle.text
+                                      );
+
+                                      _media_url.clear();
+                                      _profile_handle.clear();
+                                      _media_title.clear();
+                                      Navigator.of(context).pop();
+                                    }
+                                  }
+
+                                }
+                                else{
+                                  print("kala 4");
+                                  _showErrorDialog("Please enter a valid link. For example https://www.saintconnect.info");
+
+                                }
+                              }
+
+
+
+                            }
+                            else{
+
+                              if(editmedia.title=="WhatsApp"){
+                                for (int i=0;i<business_connections!.length;i++){
+                                  if(business_connections![i].media==editmedia.media){
+                                   business_connections![i]=SocialMedia(
+                                        media: editmedia.media,
+                                        url: _media_url.text,
+                                        title:editmedia.title,
+                                        profile_handle: _profile_handle.text
+                                    );
+
+                                  }
+                                }
+                                _media_url.clear();
+                                _profile_handle.clear();
+                                _media_title.clear();
+
+                                Navigator.of(context).pop();
+
+                              }
+                              else{
+                                if(_media_url.text.isNotEmpty && (_media_url.text.startsWith("HTTPS://") || _media_url.text.startsWith("https://"))){
+
+                                  for (int i=0;i<business_connections!.length;i++){
+                                    if(business_connections![i].media==editmedia.media){
+                                      business_connections!=SocialMedia(
+                                          media: editmedia.media,
+                                          url: _media_url.text,
+                                          title:editmedia.title,
+                                          profile_handle: _profile_handle.text
+                                      );
+                                    }
+                                  }
+
+                                  _media_url.clear();
+                                  _profile_handle.clear();
+                                  _media_title.clear();
+                                  Navigator.of(context).pop();
+                                }
+                                else{
+                                  _showErrorDialog("Please enter a valid link. For example https://www.saintconnect.info");
+
+                                }
+                              }
+
+
+
+
+                            }
+
+                          }
+
+                        },
+                        child: Container(
+                          alignment: Alignment.centerLeft,
+                          child: Container(
+                            height: height*0.054,
+                            width: width*1,
+                            decoration: BoxDecoration(
+                                color: Color(0xff111111),
+                                borderRadius: BorderRadius.circular(10),
+                                border: Border.fromBorderSide(BorderSide(color: mycolor))
+                            ),
+                            child: Center(child: BuildText(txt: "Save", fontsize: 0.025)),
+                          ),
+
+                        ),
+                      )
+
+
+                    ],
+                  ),
+                ))).then((value) {
+      _media_url.clear();
+      _profile_handle.clear();
+      _media_title.clear();
+    });
+    return choosedfile;
+  }
+
+  Future<File?> _edit_custom_media(
+      {required SocialMedia editmedia, required bool personel}) async {
+    _media_url.text=editmedia.url.toString();
+
+    _profile_handle.text=editmedia.title.toString();
+    final height = MediaQuery
+        .of(context)
+        .size
+        .height;
+    final width = MediaQuery
+        .of(context)
+        .size
+        .width;
+    File ? choosedfile;
+
+    await showDialog(
+        context: context,
+        builder: (ctx) =>
+            AlertDialog(
+                backgroundColor: Color(0xff111111),
+                title: BuildItalicText(txt: editmedia.title, fontsize: 0.025),
+                content: Container(
+                  height: MediaQuery
+                      .of(context)
+                      .size
+                      .height * 0.3,
+                  child: Column(
+                    children: [
+                      Container(
+                        alignment: Alignment.centerLeft,
+                        child: Container(
+                            height: height * 0.054,
+                            width: width * 1,
+
+                            decoration: BoxDecoration(
+                                color: Colors.white,
+
+                                borderRadius: BorderRadius.circular(10)
+                            ),
+                            padding: EdgeInsets.only(left: width * 0.05),
+                            child: TextField(
+                              controller: _media_url,
+                              textAlignVertical: TextAlignVertical.center,
+                              decoration: InputDecoration(
+                                  hintText:    editmedia.media=="WhatsApp"?"Enter your Whatsapp no":
+                                  'Enter your ${editmedia.media} URL',
+                                  border: InputBorder.none,
+                                  hintStyle: TextStyle(
+                                      color: Color(0xff5D5D5D),
+                                      fontFamily: 'Corporate A Italic',
+                                      fontSize: 15
+
+                                  )
+                              ),
+                            )
+                        ),
+
+                      ),
+                      SizedBox(height: height*0.025,),
+
+
+                      Container(
+                        alignment: Alignment.centerLeft,
+                        child: Container(
+                            height: height*0.054,
+                            width: width*1,
+
+                            decoration: BoxDecoration(
+                                color: Colors.white,
+
+                                borderRadius: BorderRadius.circular(10)
+                            ),
+                            padding: EdgeInsets.only(left: width*0.05),
+                            child:  TextField(
+                              controller: _profile_handle,
+                              textAlignVertical: TextAlignVertical.center,
+                              decoration: InputDecoration(
+                                  hintText: 'Enter title ',
+                                  border: InputBorder.none,
+                                  hintStyle: TextStyle(
+                                      color: Color(0xff5D5D5D),
+                                      fontFamily: 'Corporate A Italic',
+                                      fontSize: 15
+
+                                  )
+                              ),
+                            )
+                        ),
+
+                      ),
+
+                      SizedBox(height: height * 0.05,),
+
+
+
+                      InkWell(
+                        onTap: (){
+                          if(_profile_handle.text.isNotEmpty){
+
+
+
+
+                            if(personel){
+
+                              if(editmedia.media=="WhatsApp"){
+                                for (int i=0;i<personal_connections!.length;i++){
+                                  if(personal_connections![i].media==editmedia.media){
+                                    personal_connections![i]=SocialMedia(
+                                        media: editmedia.media,
+                                        url: _media_url.text,
+                                        title:_profile_handle.text,
+                                        profile_handle: ""
+                                    );
+
+                                    _media_url.clear();
+                                    _profile_handle.clear();
+                                    _media_title.clear();
+                                    Navigator.of(context).pop();
+                                  }
+                                }
+                              }
+                              else{
+                                if(_media_url.text.isNotEmpty && (_media_url.text.startsWith("HTTPS://") || _media_url.text.startsWith("https://"))){
+
+                                  for (int i=0;i<personal_connections!.length;i++){
+                                    if(personal_connections![i].media==editmedia.media){
+                                      personal_connections![i]=SocialMedia(
+                                          media: editmedia.media,
+                                          url: _media_url.text,
+                                          title:_profile_handle.text,
+                                          profile_handle: ""
+                                      );
+
+                                      _media_url.clear();
+                                      _profile_handle.clear();
+                                      _media_title.clear();
+                                      Navigator.of(context).pop();
+                                    }
+                                  }
+                                }
+                                else{
+                                  _showErrorDialog("Please enter a valid link. For example https://www.saintconnect.info");
+
+                                }
+
+                              }
+
+
+                            }
+                            else{
+
+                              if(editmedia.media=="WhatsApp"){
+                                for (int i=0;i<business_connections!.length;i++){
+                                  if(business_connections![i].media==editmedia.media){
+                                    business_connections![i]=SocialMedia(
+                                        media: editmedia.media,
+                                        url: _media_url.text,
+                                        title:_profile_handle.text,
+                                        profile_handle: ""
+                                    );
+
+
+                                  }
+                                }
+                                _media_url.clear();
+                                _profile_handle.clear();
+                                _media_title.clear();
+                                Navigator.of(context).pop();
+                              }
+                              else{
+                                if(_media_url.text.isNotEmpty && (_media_url.text.startsWith("HTTPS://") || _media_url.text.startsWith("https://"))){
+
+                                  for (int i=0;i<business_connections!.length;i++){
+                                    if(business_connections![i].media==editmedia.media){
+                                      business_connections![i]=SocialMedia(
+                                          media: editmedia.media,
+                                          url: _media_url.text,
+                                          title:_profile_handle.text,
+                                          profile_handle: ""
+                                      );
+
+                                    }
+                                  }
+
+                                  _media_url.clear();
+                                  _profile_handle.clear();
+                                  _media_title.clear();
+                                  Navigator.of(context).pop();
+
+
+                                }
+                                else{
+                                  _showErrorDialog("Please enter a valid link. For example https://www.saintconnect.info");
+
+                                }
+                              }
+
+
+
+
+
+                            }
+
+                          }
+
+                        },
+                        child: Container(
+                          alignment: Alignment.centerLeft,
+                          child: Container(
+                            height: height*0.054,
+                            width: width*1,
+                            decoration: BoxDecoration(
+                                color: Color(0xff111111),
+                                borderRadius: BorderRadius.circular(10),
+                                border: Border.fromBorderSide(BorderSide(color: mycolor))
+                            ),
+                            child: Center(child: BuildText(txt: "Save", fontsize: 0.025)),
+                          ),
+
+                        ),
+                      )
+
+
+                    ],
+                  ),
+                ))).then((value) {
+      _media_url.clear();
+      _profile_handle.clear();
+      _media_title.clear();
+    });
+    return choosedfile;
+  }
+
+
+
+
+
+
+
+
+
+
+
+
   Future<File?> _enter_media({required String social_media_name, required String ? choice,required bool personel}) async{
     final height=MediaQuery.of(context).size.height;
     final width=MediaQuery.of(context).size.width;
@@ -656,7 +1600,8 @@ class _CreateprofileState extends State<Createprofile> {
                           controller: _media_url,
                           textAlignVertical: TextAlignVertical.center,
                           decoration: InputDecoration(
-                              hintText: 'Enter your ${social_media_name} URL'
+                              hintText:    social_media_name=="WhatsApp"?"Enter your Whatsapp no":
+                              'Enter your ${social_media_name} URL'
                               ,
                               border: InputBorder.none,
                               hintStyle: TextStyle(
@@ -670,7 +1615,10 @@ class _CreateprofileState extends State<Createprofile> {
                     ),
 
                   ),
-                  SizedBox(height: height*0.05,),
+
+                  SizedBox(height: height*0.025,),
+
+
                   Container(
                     alignment: Alignment.centerLeft,
                     child: Container(
@@ -684,11 +1632,10 @@ class _CreateprofileState extends State<Createprofile> {
                         ),
                         padding: EdgeInsets.only(left: width*0.05),
                         child:  TextField(
-                          controller: _media_title,
+                          controller: _profile_handle,
                           textAlignVertical: TextAlignVertical.center,
                           decoration: InputDecoration(
-                              hintText: 'Enter the title'
-                              ,
+                              hintText: 'Enter profile handle',
                               border: InputBorder.none,
                               hintStyle: TextStyle(
                                   color: Color(0xff5D5D5D),
@@ -701,79 +1648,106 @@ class _CreateprofileState extends State<Createprofile> {
                     ),
 
                   ),
+
                   SizedBox(height: height*0.05,),
                   InkWell(
                     onTap: (){
-                      bool exist=false;
-
-                      if(personel){
-                        if(_media_url.text.isNotEmpty && (_media_url.text.startsWith("HTTPS://") || _media_url.text.startsWith("https://"))){
-
-                          personal_connections!.forEach((element) {
-                            if(element.media==choice){
-                              exist=true;
-                            }
-                          });
-
-                          if(exist==false){
-                            personal_connections!.add(SocialMedia(
-                                media: choice,
-                                url: _media_url.text,
-                              title: _media_title.text
-                            ));
-                                  _media_url.clear();
-                            _media_title.clear();
-                            _media_title.clear();
-                            Navigator.of(context).pop();
-                          }
-                          else{
-                                  _media_url.clear();
-                            _media_title.clear();
-                            _media_title.clear();
-                            Navigator.of(context).pop();
-                          }
+                   if(_profile_handle.text.isNotEmpty){
 
 
-                        }
-                        else{
-                          _showErrorDialog("Please enter a valid link. For example https://www.saintconnect.info");
+                     if(personel){
+                       if(_media_url.text.isNotEmpty){
 
-                        }
+                         if( social_media_name=="WhatsApp"){
 
-                      }
-                      else{
-                        if(_media_url.text.isNotEmpty && (_media_url.text.startsWith("HTTPS://") || _media_url.text.startsWith("https://"))) {
-                          business_connections!.forEach((element) {
-                            if(element.media==choice){
-                              exist=true;
-                            }
-                          });
+                           personal_connections!.add(SocialMedia(
+                               media: choice,
+                               url: _media_url.text,
+                               title:social_media_name,
+                               profile_handle: _profile_handle.text
+                           ));
+                           _media_url.clear();
+                           _profile_handle.clear();
+                           _media_title.clear();
+                           Navigator.of(context).pop();
 
-                          if(exist==false){
-                            business_connections!.add(SocialMedia(
-                                media: choice,
-                                url: _media_url.text,
-                              title: _media_title.text
-                            ));
-                                  _media_url.clear();
-                            _media_title.clear();
-                            _media_title.clear();
-                            Navigator.of(context).pop();
-                          }
-                          else{
-                                  _media_url.clear();
-                            _media_title.clear();
-                            _media_title.clear();
-                            Navigator.of(context).pop();
-                          }
-                        }
-                        else{
-                          _showErrorDialog("Please enter a valid link. For example https://www.saintconnect.info");
+                         }
+                         else{
+                           if(  (_media_url.text.startsWith("HTTPS://") || _media_url.text.startsWith("https://"))){
 
-                        }
+                             personal_connections!.add(SocialMedia(
+                                 media: choice,
+                                 url: _media_url.text,
+                                 title:social_media_name,
+                                 profile_handle: _profile_handle.text
+                             ));
+                             _media_url.clear();
+                             _profile_handle.clear();
+                             _media_title.clear();
+                             Navigator.of(context).pop();
 
-                      }
 
+                           }
+                           else{
+                             _showErrorDialog("Please enter a valid link. For example https://www.saintconnect.info");
+
+                           }
+                         }
+
+
+                       }
+
+
+
+                     }
+                     else{
+
+                       if(_media_url.text.isNotEmpty){
+                         if( social_media_name=="WhatsApp"){
+
+                           business_connections!.add(SocialMedia(
+                               media: choice,
+                               url: _media_url.text,
+                               title: social_media_name,
+                               profile_handle: _profile_handle.text
+                           ));
+                           _media_url.clear();
+                           _media_title.clear();
+                           _profile_handle.clear();
+
+                           Navigator.of(context).pop();
+                         }
+                         else{
+                           if( (_media_url.text.startsWith("HTTPS://") || _media_url.text.startsWith("https://"))) {
+
+
+                             business_connections!.add(SocialMedia(
+                                 media: choice,
+                                 url: _media_url.text,
+                                 title: social_media_name,
+                                 profile_handle: _profile_handle.text
+                             ));
+                             _media_url.clear();
+                             _media_title.clear();
+                             _profile_handle.clear();
+
+                             Navigator.of(context).pop();
+                           }
+                           else{
+                             _showErrorDialog("Please enter a valid link. For example https://www.saintconnect.info");
+
+                           }
+                         }
+
+                       }
+
+
+
+
+
+                     }
+
+                   }
 
                     },
                     child: Container(
@@ -814,7 +1788,7 @@ class _CreateprofileState extends State<Createprofile> {
               backgroundColor: Color(0xff111111),
               title: BuildItalicText(txt:"Custom URL", fontsize: 0.025),
               content: Container(
-                height: MediaQuery.of(context).size.height * 0.4,
+                height: MediaQuery.of(context).size.height * 0.43,
                 child: Column(
                   children: [
                     Container(
@@ -894,13 +1868,14 @@ class _CreateprofileState extends State<Createprofile> {
                             onTap: ()async{
                               await  _show_my_Dialog('social_url').then((value) async{
                                 if(value!=null){
-                                  mysetState(() {
-                                    choosedfile=value;
-                                    saving=true;
-                                  });
+
                                   double filelength=0;
-                                  filelength=(choosedfile!.lengthSync()/1000000);
+                                  filelength=(value.lengthSync()/1000000);
                                   if(filelength<4){
+                                    mysetState(() {
+                                      choosedfile=value;
+                                      saving=true;
+                                    });
                                     await  upload_my_file(myfile: choosedfile).then((value) {
                                       choosedfile_url=value;
 
@@ -909,6 +1884,9 @@ class _CreateprofileState extends State<Createprofile> {
                                       });
                                     });
 
+                                  }
+                                  else{
+                                    _showErrorDialog('File should be of less than 4 MB size');
                                   }
                                 }
                               });
@@ -948,73 +1926,66 @@ class _CreateprofileState extends State<Createprofile> {
                     InkWell(
                       onTap: (){
                         if(_media_url.text.isNotEmpty){
-                          bool exist=false;
+
                           if(personel){
                             personal_connections!.forEach((element) {
                               if(element.media==choice){
-                                exist=true;
+
                                 int desiredindex= personal_connections!.indexWhere((element) => element.media==choice);
                                 personal_connections![desiredindex]=SocialMedia(
                                     media:
                                     choosedfile_url!.isEmpty?"https://firebasestorage.googleapis.com/v0/b/saintconnect-9c0c9.appspot.com/o/Social_Icons%2FSafari.png?alt=media&token=df49bbf4-49e5-41dd-ae3d-bc2e388584eb":
                                     choosedfile_url,
                                     url: _media_url.text.isEmpty?"Custom URL": _media_url.text,
-                                  title:  _media_title.text
+                                  title: "Custom",
+                                  profile_handle: _profile_handle.text
                                 );
                               }
-                            });
+                            }
+                            );
 
-                            if(exist==false){
-                              personal_connections!.add(SocialMedia(
-                                  media:
-                                  choosedfile_url!.isEmpty?"https://firebasestorage.googleapis.com/v0/b/saintconnect-9c0c9.appspot.com/o/Social_Icons%2FSafari.png?alt=media&token=df49bbf4-49e5-41dd-ae3d-bc2e388584eb":
-                                  choosedfile_url,
-                                  url: _media_url.text.isEmpty?"Custom URL": _media_url.text,
-                                title:  _media_title.text
-                              ));
-                                    _media_url.clear();
+                            personal_connections!.add(SocialMedia(
+                                media:
+                                choosedfile_url!.isEmpty?"https://firebasestorage.googleapis.com/v0/b/saintconnect-9c0c9.appspot.com/o/Social_Icons%2FSafari.png?alt=media&token=df49bbf4-49e5-41dd-ae3d-bc2e388584eb":
+                                choosedfile_url,
+                                url: _media_url.text.isEmpty?"Custom URL": _media_url.text,
+                                title:  "Custom",
+                                profile_handle: _profile_handle.text
+                            ));
+                            _media_url.clear();
                             _media_title.clear();
-                              Navigator.of(context).pop();
-                            }
-                            else{
-                                    _media_url.clear();
-                            _media_title.clear();
-                              Navigator.of(context).pop();
-                            }
+                            _profile_handle.clear();
+                            Navigator.of(context).pop();
                           }
 
                           else{
                             business_connections!.forEach((element) {
                               if(element.media==choice){
-                                exist=true;
+
                                 int desiredindex= business_connections!.indexWhere((element) => element.media==choice);
                                 business_connections![desiredindex]=SocialMedia(
                                     media:
                                     choosedfile_url!.isEmpty?"https://firebasestorage.googleapis.com/v0/b/saintconnect-9c0c9.appspot.com/o/Social_Icons%2FSafari.png?alt=media&token=df49bbf4-49e5-41dd-ae3d-bc2e388584eb":
                                     choosedfile_url,
                                     url: _media_url.text.isEmpty?"Custom URL": _media_url.text,
-                                  title:  _media_title.text
+                                  title:  "Custom",
+                                  profile_handle: _profile_handle.text
                                 );
                               }
                             });
 
-                            if(exist==false){
-                              business_connections!.add(SocialMedia(
-                                  media:
-                                  choosedfile_url!.isEmpty?"https://firebasestorage.googleapis.com/v0/b/saintconnect-9c0c9.appspot.com/o/Social_Icons%2FSafari.png?alt=media&token=df49bbf4-49e5-41dd-ae3d-bc2e388584eb":
-                                  choosedfile_url,
-                                  url: _media_url.text.isEmpty?"Custom URL": _media_url.text,
-                                title:  _media_title.text
-                              ));
-                                    _media_url.clear();
+                            business_connections!.add(SocialMedia(
+                                media:
+                                choosedfile_url!.isEmpty?"https://firebasestorage.googleapis.com/v0/b/saintconnect-9c0c9.appspot.com/o/Social_Icons%2FSafari.png?alt=media&token=df49bbf4-49e5-41dd-ae3d-bc2e388584eb":
+                                choosedfile_url,
+                                url: _media_url.text.isEmpty?"Custom URL": _media_url.text,
+                                title: "Custom",
+                                profile_handle: _profile_handle.text
+                            ));
+                            _media_url.clear();
                             _media_title.clear();
-                              Navigator.of(context).pop();
-                            }
-                            else{
-                                    _media_url.clear();
-                            _media_title.clear();
-                              Navigator.of(context).pop();
-                            }
+                            _profile_handle.clear();
+                            Navigator.of(context).pop();
                           }
 
                         }
@@ -1592,6 +2563,15 @@ class _CreateprofileState extends State<Createprofile> {
   );
 
   double percentage=0;
+
+
+ @override
+  void initState() {
+    // TODO: implement initState
+
+    super.initState();
+
+  }
   @override
   Widget build(BuildContext context) {
     final height=MediaQuery.of(context).size.height;
@@ -1608,6 +2588,7 @@ class _CreateprofileState extends State<Createprofile> {
 
     }
 
+
     return GestureDetector(
       onTap: (){
         FocusScopeNode currentFocus = FocusScope.of(context);
@@ -1616,7 +2597,9 @@ class _CreateprofileState extends State<Createprofile> {
           currentFocus.unfocus();
         }
       },
+
       child: Scaffold(
+
         backgroundColor: bgcolor,
         body: Form(
           key: _formKey,
@@ -1666,13 +2649,7 @@ class _CreateprofileState extends State<Createprofile> {
 
                                 filelength=(profile_file!.lengthSync()/1000000);
                                 if(filelength<4){
-                                  await  upload_my_file(myfile: profile_file).then((value) {
-                                    profile_url=value;
-                                    calculatepercentage();
-                                    setState(() {
 
-                                    });
-                                  });
                                 }
                                 else{
                                   profile_file=null;
@@ -1747,12 +2724,10 @@ class _CreateprofileState extends State<Createprofile> {
 
                                 filelength=(logo_file!.lengthSync()/1000000);
                                 if(filelength<4){
-                                  await  upload_my_file(myfile: logo_file).then((value) {
-                                    company_logo=value;
-                                    calculatepercentage();
-                                    setState(() {
 
-                                    });
+                                  calculatepercentage();
+                                  setState(() {
+
                                   });
                                 }
                                 else{
@@ -2400,6 +3375,35 @@ class _CreateprofileState extends State<Createprofile> {
                            Stack(
                              children: [
                                InkWell(
+                                 onTap: (){
+
+                                   if(personal_connections![index].title!="facebook"
+                                       &&
+                                       personal_connections![index].title!="Instagram"
+                                       &&
+                                       personal_connections![index].title!="Snapchat"
+                                       && personal_connections![index].title!="Twitter"
+                                       && personal_connections![index].title!="WhatsApp"
+                                       && personal_connections![index].title!="LinkedIn"
+                                       && personal_connections![index].title!="YouTube"
+
+                                   ){
+                                     _edit_custom_media(
+                                         personel: true,
+                                         editmedia: personal_connections![index]
+                                     );
+
+                                   }
+                                   else{
+
+                                     _edit_media(
+                                         personel: true,
+                                         editmedia:personal_connections![index]
+                                     );
+
+                                   }
+
+                                 },
                                onLongPress: ()async{
                             await   _show_personel_deleteion().then((value) {
                               if(value==true){
@@ -2510,28 +3514,48 @@ class _CreateprofileState extends State<Createprofile> {
                                 child: Icon(Icons.add,color: mycolor,size: 35),
                               ),
                             ):
-                            InkWell(
-                              onLongPress: ()async{
-                                await   _show_personel_deleteion().then((value) {
-                                  if(value==true){
-                                    setState(() {
-                                      accreditation_file.removeAt(index);
-                                    });
-                                  }
-                                });
-                              },
-                              child: Container(
-                                height: height*0.2,
-                                decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(10),
-                                    border: Border.all(
-                                        color: mycolor
+                            Container(
+                              height: height*0.2,
+                              child: Stack(
+                                children: [
+
+                                  Container(
+                                    height: height*0.2,
+                                    decoration: BoxDecoration(
+                                        borderRadius: BorderRadius.circular(10),
+                                        border: Border.all(
+                                            color: mycolor
+                                        ),
+                                        image: DecorationImage(
+                                            fit: BoxFit.cover,
+                                            image: FileImage(accreditation_file[index])
+                                        )
                                     ),
-                                    image: DecorationImage(
-                                        fit: BoxFit.cover,
-                                        image: FileImage(accreditation_file[index])
-                                    )
-                                ),
+                                  ),
+
+                                  Positioned(
+                                    right: width*0.015,
+                                    top: height*0.01,
+                                    child: InkWell(
+                                      onTap: ()async{
+                                        await   _show_personel_deleteion().then((value) {
+                                          if(value==true){
+                                            setState(() {
+                                              accreditation_file.removeAt(index);
+                                            });
+                                          }
+                                        });
+                                      },
+                                      child: CircleAvatar(
+                                          radius: height*0.015,
+                                          backgroundColor: Color(0xffDAC07A),
+                                          child:Icon(Icons.delete,
+                                            color: Colors.black,size: height*0.01652,)
+                                      ),
+                                    ),
+                                  )
+
+                                ],
                               ),
                             );
                         },
@@ -2880,6 +3904,31 @@ class _CreateprofileState extends State<Createprofile> {
                             Stack(
                               children: [
                                 InkWell(
+                                  onTap: (){
+                                    if(business_connections![index].title!="facebook"
+                                        &&
+                                 business_connections![index].title!="Instagram"
+                                        &&
+                                 business_connections![index].title!="Snapchat"
+                                        && business_connections![index].title!="Twitter"
+                                        && business_connections![index].title!="WhatsApp"
+                                        && business_connections![index].title!="LinkedIn"
+                                        && business_connections![index].title!="YouTube"
+
+                                    ){
+                                      _edit_custom_media(
+                                          personel: false,
+                                          editmedia: business_connections![index]
+                                      );
+
+                                    }
+                                    else{
+                                      _edit_media(
+                                          personel: false,
+                                          editmedia: business_connections![index]
+                                      );
+                                    }
+                                  },
                                   onLongPress: ()async{
                                     await   _show_personel_deleteion().then((value) {
                                       if(value==true){
@@ -3004,7 +4053,7 @@ class _CreateprofileState extends State<Createprofile> {
                             radius: height*0.0125,
                             backgroundColor: goldencolor,
                             child: CircleAvatar(
-                              radius:  height*0.013,
+                              radius:  height*0.011,
                               backgroundColor: Color(int.parse(bgcolors[index])),
                             ),
                           ),
@@ -3015,8 +4064,7 @@ class _CreateprofileState extends State<Createprofile> {
                             radius: height*0.0125,
                             backgroundColor: goldencolor,
                             child: CircleAvatar(
-                              radius:
-                              height*0.013,
+                              radius:  height*0.011,
                               backgroundColor:Color(int.parse(bgcolors[index])),
                             ),
                           ),
@@ -3025,75 +4073,6 @@ class _CreateprofileState extends State<Createprofile> {
 
                       ),
                     ),
-                    // Wrap(
-                    //
-                    //   children:   List.generate(bgcolors.length, (index) =>
-                    //
-                    //   index==bgcolors.length-1?
-                    //
-                    //   InkWell(
-                    //     onTap: () async {
-                    //
-                    //       await _pickcolor(title: 'bg').then((value) {
-                    //
-                    //       });
-                    //
-                    //     },
-                    //     child: Container(
-                    //       margin: EdgeInsets.only(left: width*0.02,bottom: height*0.02),
-                    //       child: CircleAvatar(
-                    //         radius: height*0.0145,
-                    //         backgroundColor: Color(int.parse(bgcolors[index])),
-                    //         child: CircleAvatar(
-                    //           radius: height*0.012,
-                    //           backgroundColor: bgcolor,
-                    //           child: Icon(Icons.add,color: Color(int.parse(bgcolors[index])),size: height*0.0185),
-                    //         ),
-                    //       ),
-                    //     ),
-                    //   )
-                    //       :
-                    //   bgcolors[index]==design_appearance!.BackgroundTheme?Text(""):
-                    //   InkWell(
-                    //     onTap: (){
-                    //       setState((){
-                    //         design_appearance!.BackgroundTheme=
-                    //         CustomColor(hexcode: bgcolors[index].toString());
-                    //       });
-                    //       String desiredcolor= bgcolors[index];
-                    //       bgcolors.removeAt(index);
-                    //       bgcolors[0]=desiredcolor;
-                    //       calculatepercentage();
-                    //     },
-                    //     child:
-                    //         bgcolors[index]=="0xff000000"?
-                    //     Container(
-                    //       margin: EdgeInsets.only(left: width*0.02,bottom: height*0.02),
-                    //       child: CircleAvatar(
-                    //         radius: height*0.017,
-                    //         backgroundColor: Colors.white,
-                    //         child: CircleAvatar(
-                    //           radius:  height*0.015,
-                    //           backgroundColor: Color(int.parse(bgcolors[index])),
-                    //         ),
-                    //       ),
-                    //     ):
-                    //     Container(
-                    //       margin: EdgeInsets.only(left: width*0.02,bottom: height*0.02),
-                    //       child: CircleAvatar(
-                    //         radius:
-                    //
-                    //         index==0?
-                    //             height*0.02
-                    //             :
-                    //         height*0.017,
-                    //         backgroundColor:Color(int.parse(bgcolors[index])),
-                    //       ),
-                    //     ),
-                    //   )
-                    //
-                    //   ),
-                    // ),
 
 
                     SizedBox(height: height * 0.025,),
@@ -3123,7 +4102,7 @@ class _CreateprofileState extends State<Createprofile> {
                             radius: height*0.0125,
                             backgroundColor: Color(int.parse(buttoncolors[index])),
                             child: CircleAvatar(
-                              radius: height*0.012,
+                              radius: height*0.011,
                               backgroundColor: bgcolor,
                               child: Icon(Icons.add,color: Color(int.parse(buttoncolors[index])),size: height*0.0185),
                             ),
@@ -3149,9 +4128,9 @@ class _CreateprofileState extends State<Createprofile> {
                           margin: EdgeInsets.only(left: width*0.02,bottom: height*0.02),
                           child: CircleAvatar(
                             radius: height*0.0125,
-                            backgroundColor:goldencolor,
+                            backgroundColor: goldencolor,
                             child: CircleAvatar(
-                              radius:  height*0.013,
+                              radius:  height*0.011,
                               backgroundColor: Color(int.parse(buttoncolors[index])),
                             ),
                           ),
@@ -3159,11 +4138,10 @@ class _CreateprofileState extends State<Createprofile> {
                         Container(
                           margin: EdgeInsets.only(left: width*0.02,bottom: height*0.02),
                           child: CircleAvatar(
-                            backgroundColor: goldencolor,
                             radius: height*0.0125,
+                            backgroundColor: goldencolor,
                             child: CircleAvatar(
-                              radius:
-                              height*0.013,
+                              radius:  height*0.011,
                               backgroundColor:Color(int.parse(buttoncolors[index])),
                             ),
                           ),
@@ -3230,7 +4208,7 @@ class _CreateprofileState extends State<Createprofile> {
                             radius: height*0.0125,
                             backgroundColor: goldencolor,
                             child: CircleAvatar(
-                              radius:  height*0.013,
+                              radius:  height*0.011,
                               backgroundColor: Color(int.parse(textcolors[index])),
                             ),
                           ),
@@ -3238,11 +4216,10 @@ class _CreateprofileState extends State<Createprofile> {
                         Container(
                           margin: EdgeInsets.only(left: width*0.02,bottom: height*0.02),
                           child: CircleAvatar(
+                            radius: height*0.0125,
                             backgroundColor: goldencolor,
-                              radius: height*0.0125,
-                              child: CircleAvatar(
-                              radius:
-                              height*0.013,
+                            child: CircleAvatar(
+                              radius:  height*0.011,
                               backgroundColor:Color(int.parse(textcolors[index])),
                             ),
                           ),
@@ -3306,9 +4283,9 @@ class _CreateprofileState extends State<Createprofile> {
                           margin: EdgeInsets.only(left: width*0.02,bottom: height*0.02),
                           child: CircleAvatar(
                             radius: height*0.0125,
-                            backgroundColor:goldencolor,
+                            backgroundColor: goldencolor,
                             child: CircleAvatar(
-                              radius:  height*0.013,
+                              radius:  height*0.011,
                               backgroundColor: Color(int.parse(bordercolors[index])),
                             ),
                           ),
@@ -3316,11 +4293,10 @@ class _CreateprofileState extends State<Createprofile> {
                         Container(
                           margin: EdgeInsets.only(left: width*0.02,bottom: height*0.02),
                           child:  CircleAvatar(
-                              backgroundColor: goldencolor,
-                              radius: height*0.0125,
+                            radius: height*0.0125,
+                            backgroundColor: goldencolor,
                             child: CircleAvatar(
-                              radius:
-                              height*0.013,
+                              radius:  height*0.011,
                               backgroundColor:Color(int.parse(bordercolors[index])),
                             ),
                           ),
@@ -3817,6 +4793,20 @@ _showErrorDialog(e.toString());
                     SizedBox(height: height*0.05,),
 
 
+                    // QrImage(
+                    //   foregroundColor: mycolor,
+                    //   data: 'hello',
+                    //   version: QrVersions.auto,
+                    //   dataModuleStyle: QrDataModuleStyle(
+                    //     dataModuleShape: QrDataModuleShape.square
+                    //   ),
+                    //   embeddedImageStyle: QrEmbeddedImageStyle(
+                    //     size: Size(90, 90)
+                    //    ),
+                    //   embeddedImage: NetworkImage("https://firebasestorage.googleapis.com/v0/b/saintconnect-9c0c9.appspot.com/o/nav_icons%2Flogo.png?alt=media&token=b7647d9a-a9b2-4ad7-ba89-3b1ae8bbd48e"),
+                    //   size: MediaQuery.of(context).size.height*0.25,
+                    //   gapless: true,
+                    // ),
 
                     isloading?
 
@@ -3856,7 +4846,15 @@ _showErrorDialog(e.toString());
 
                         onTap: () async {
 
-                          _submit();
+    if (await contacts. FlutterContacts.requestPermission()) {
+      if(profile_file!=null) {
+        url=await fileToUint8List(profile_file!);
+      }
+
+      _submit();
+    }
+
+
                         },
                         child: BuildWhiteButton(text: "Create Profile")),
 
@@ -3874,37 +4872,110 @@ _showErrorDialog(e.toString());
   }
 
 
-  Future<void> writeCounter() async {
 
-    ///Set properties
-    mycard.firstName = createprofile!.your_details!.name.toString();
-    mycard.workAddress =MailingAddress(createprofile!.your_details!.location.toString());
-    Map<String,String> ? map2 = {};
-    createprofile!.personal_connection!.forEach((customer) => map2[customer.media.toString()] = customer.url.toString());
+  Future<Uint8List?> fileToUint8List(File file) async {
+    Uint8List?  uint8List;
+   try {
+      // Read the file as bytes
+      List<int> bytes = await file.readAsBytes();
 
-    mycard.socialUrls=map2;
-    mycard.workPhone = createprofile!.business_details!.company_contact_no.toString();
-    mycard.workEmail =createprofile!.your_details!.email.toString();
-    mycard.cellPhone =createprofile!.your_details!.email.toString();
-    mycard.jobTitle =createprofile!.your_details!.title.toString();
+      // Convert bytes to Uint8List
+      uint8List= Uint8List.fromList(bytes);
+
+      return uint8List;
+    } catch (e) {
+      print('Error converting file to Uint8List: $e');
+
+    }
+ return uint8List;
+ }
+  var url;
+  Future<File?> writeCounter(String profile_documentid) async {
+
+    // ///Set properties
+    // mycard.firstName = createprofile!.your_details!.name.toString();
+    // mycard.workAddress =MailingAddress(createprofile!.your_details!.location.toString());
+    // Map<String,String> ? map2 = {};
+    // createprofile!.personal_connection!.forEach((customer) => map2[customer.media.toString()] = customer.url.toString());
 
 
-    File ? dd=await _localFile;
-    /// Save to file
+    //
+    // mycard.socialUrls=map2;
+    // mycard.url="https://www.saintconnect.info/profile?uid=${profile_documentid}";
+    // mycard.workPhone = createprofile!.business_details!.company_contact_no.toString();
+    // mycard.workEmail =createprofile!.your_details!.email.toString();
+    // mycard.cellPhone =createprofile!.your_details!.contact_no.toString();
+    // mycard.jobTitle =createprofile!.your_details!.title.toString();
+    //
+    //
+    // File ? dd=await _localFile;
+    // /// Save to file
+    //
+    //
+    // mycard.saveToFile(dd);
+    //
+    // print(mycard.getFormattedString());
+    //
+    // String contents = mycard. getFormattedString();
+    //
+    // final directory = await getApplicationDocumentsDirectory();
+    //
+    // final path = directory.path;
+    //
+    // final fs = File('$path/${currentuser!.uid}.vcf');
+    // fs.writeAsStringSync(contents);
+
+    List< contacts.SocialMedia> ? social_urls = [];
+
+   personal_connections!.forEach(
+            (customer) {
+              social_urls.add(
+                  contacts.SocialMedia(customer.url.toString()),
+              );
+            }
+    );
 
 
-    mycard.saveToFile(dd);
+print("amna jaan "+mydetail!.name.toString().toString()+" lala "+createprofile!.your_details!.name.toString());
 
-    print(mycard.getFormattedString());
 
-    String contents = mycard. getFormattedString();
 
-    final directory = await getApplicationDocumentsDirectory();
+    if (await contacts. FlutterContacts.requestPermission()) {
 
-    final path = directory.path;
+      final newContact = Contact(
+        name:contacts.Name(first:mydetail!.name.toString(),last: ""),
+        displayName: "my name",
+        emails: [contacts.Email(mydetail!.email.toString())],
+        addresses: [Address(mydetail!.location .toString())],
+        phones: [Phone(createprofile!.your_details!.contact_no.toString())],
+        socialMedias:social_urls,
+        photo:url,
+        websites: [contacts.Website("https://www.saintconnect.info/profile?uid=${profile_documentid}")],
+        thumbnail: url,
 
-    final fs = File('$path/${currentuser!.uid}.vcf');
-    fs.writeAsStringSync(contents);
+      );
+
+      await newContact.insert();
+
+      // Export contact to vCard
+
+      String mycard = newContact.toVCard();
+
+
+      final directory = await getApplicationDocumentsDirectory();
+
+      final path = directory.path;
+
+      final fs = File('$path/${currentuser!.uid}.vcf');
+
+      fs.writeAsStringSync(mycard);
+
+    return fs;
+    }
+
+
+
+
 
   }
   Future<String> get _localPath async {

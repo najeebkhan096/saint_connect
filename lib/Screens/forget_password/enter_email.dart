@@ -39,22 +39,27 @@ class _EnterEmailState extends State<EnterEmail> {
               backgroundColor: Colors.white,
               content: BuildBlackMuiliText(txt: "Further instructions have been sent to your email", fontsize: 0.02)));
 
-      // await openEmail().then((value) {
-      //
-      // });
+
 
     } catch (e) {
-    print("my error is "+e.toString());
+
+
     setState(() {
       isloginloading=false;
     });
 if(e.toString().contains("There is no user record corresponding to this identifier")){
   _showErrorDialog("There is no user record corresponding to this identifier. The user may have been deleted.");
 
+}else if (e.toString().contains("The email address is badly formatted")){
+
+  _showErrorDialog("The email address is badly formatted");
+
 }
  else{
+
   _showErrorDialog(e.toString());
-}
+
+ }
     }
   }
 
@@ -112,7 +117,7 @@ _showErrorDialog("Could not send");
 
   }
 
-  AuthService _auth=AuthService();
+
 Future<void> openEmail()async{
   final Uri params = Uri(
     scheme: 'mailto',
@@ -146,8 +151,6 @@ Future<void> openEmail()async{
       });
 
       forgotYourPassword(email!);
-      // sendOtp();
-
 
     }
 

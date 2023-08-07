@@ -1,7 +1,9 @@
 import 'dart:io';
 import 'dart:typed_data';
+import 'package:flutter_contacts/flutter_contacts.dart' as contacts;
 import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
+import 'package:http/http.dart' as http;
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:path/path.dart' as Path;
@@ -18,18 +20,20 @@ import 'package:saintconnect/widgets/buildtext.dart';
 import 'package:saintconnect/widgets/createButton.dart';
 import 'package:saintconnect/widgets/wrapper.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:qr_flutter/qr_flutter.dart';
+
 import 'package:screenshot/screenshot.dart';
-import 'package:vcard_maintained/vcard_maintained.dart';
+// import 'package:vcard_maintained/vcard_maintained.dart';
 import 'package:video_compress/video_compress.dart';
 import 'package:video_thumbnail/video_thumbnail.dart';
 import 'package:youtube_explode_dart/youtube_explode_dart.dart';
 
 class Editprofile extends StatefulWidget {
-MyProfile ? desiredprofile;
-Editprofile({required this.desiredprofile});
 
-  @override
+    MyProfile ? desiredprofile;
+
+    Editprofile({required this.desiredprofile});
+
+    @override
   State<Editprofile> createState() => _EditprofileState();
 }
 
@@ -279,61 +283,11 @@ var splited="0xff"+data2[0].toString();
   //Create an instance of ScreenshotController
   ScreenshotController screenshotController = ScreenshotController();
   File ? myfile;
-  String ? QRImage = '';
-
-  Widget Qrimage() {
-    return Screenshot(
-      controller: screenshotController,
-      child: QrImage(
-        data: currentuser!.uid!,
-        version: QrVersions.auto,
-        size: 200,
-        gapless: false,
-      ),
-    );
-  }
 
   double createpercentage = 0;
 
-  Future GenerateQRCode() async {
-    final Uint8List ? image = await screenshotController.captureFromWidget(
-        Qrimage());
-
-    setState(() {
-      _imageFile = image;
-    });
-
-    if (image != null) {
-      final tempDir = await getTemporaryDirectory();
-      final file = await new File('${tempDir.path}/$user_id.jpg').create();
-      file.writeAsBytesSync(image);
-      setState(() {
-        myfile = file;
-      });
-
-      await uploadQR();
-    }
-  }
 
 
-  Future uploadQR() async {
-    try {
-      ref = firebase_storage.FirebaseStorage.instance
-          .ref()
-          .child('QRCode/${Path.basename(myfile!.path)}');
-      await ref!.putFile(myfile!).whenComplete(() async {
-        await ref!.getDownloadURL().then((value) async {
-          QRImage = value;
-          setState(() {
-            createpercentage = 0.5;
-          });
-        });
-      });
-    }
-    catch (error) {
-
-    }
-  }
 
   CollectionReference ? imgRef;
 
@@ -440,6 +394,10 @@ var splited="0xff"+data2[0].toString();
 
                         InkWell(
                           onTap: () async {
+                            if(index!=4){
+                              _media_url.text="https://";
+                            }
+
                             if (social.length == index + 1) {
                               await _custom_media(
                                   choice: 'Custom URL', personel: personel);
@@ -452,10 +410,10 @@ var splited="0xff"+data2[0].toString();
                                   index == 1 ? "Instagram" :
                                   index == 2 ? "Snapchat" :
                                   index == 3 ? "Twitter" :
-                                  index == 4 ? "Whatssapp" :
+                                  index == 4 ? "WhatsApp" :
                                   index == 5 ? "Spotify" :
-                                  index == 6 ? "Linkedin" :
-                                  index == 7 ? "Youtube" :
+                                  index == 6 ? "LinkedIn" :
+                                  index == 7 ? "YouTube" :
                                   "Custom URL"
                               );
                             }
@@ -512,46 +470,129 @@ var splited="0xff"+data2[0].toString();
 
     return got_image;
   }
+
+
+  Future<Uint8List> convertImageUrlToUint8List(String imageUrl) async {
+    final response = await http.get(Uri.parse(imageUrl));
+
+    if (response.statusCode == 200) {
+      return response.bodyBytes;
+    } else {
+      throw Exception('Failed to load image: ${response.statusCode}');
+    }
+  }
+
+  Future<Uint8List?> fileToUint8List(File file) async {
+    Uint8List?  uint8List;
+    try {
+      // Read the file as bytes
+      List<int> bytes = await file.readAsBytes();
+
+      // Convert bytes to Uint8List
+      uint8List= Uint8List.fromList(bytes);
+
+      return uint8List;
+    } catch (e) {
+      print('Error converting file to Uint8List: $e');
+
+    }
+    return uint8List;
+  }
+  var url;
+
   ///Create a new vCard
-  var mycard = VCard();
-  Future<void> writeCounter() async {
+  // var mycard = VCard();
+  Future<File?> writeCounter() async {
 
-    ///Set properties
-    mycard.firstName = widget.desiredprofile!.your_details!.name.toString();
-    mycard.workAddress =MailingAddress(widget.desiredprofile!.your_details!.location.toString());
-    Map<String,String> ? map2 = {};
-    widget.desiredprofile!.personal_connection!.forEach((customer) => map2[customer.media.toString()] = customer.url.toString());
-
-    mycard.socialUrls=map2;
-    mycard.workPhone = widget.desiredprofile!.business_details!.company_contact_no.toString();
-    mycard.workEmail =widget.desiredprofile!.your_details!.email.toString();
-    mycard.cellPhone =widget.desiredprofile!.your_details!.email.toString();
-    mycard.jobTitle =widget.desiredprofile!.your_details!.title.toString();
+    // ///Set properties
+    // mycard.firstName = createprofile!.your_details!.name.toString();
+    // mycard.workAddress =MailingAddress(createprofile!.your_details!.location.toString());
+    // Map<String,String> ? map2 = {};
+    // createprofile!.personal_connection!.forEach((customer) => map2[customer.media.toString()] = customer.url.toString());
 
 
-    File ? dd=await _localFile;
-    /// Save to file
+    //
+    // mycard.socialUrls=map2;
+    // mycard.url="https://www.saintconnect.info/profile?uid=${profile_documentid}";
+    // mycard.workPhone = createprofile!.business_details!.company_contact_no.toString();
+    // mycard.workEmail =createprofile!.your_details!.email.toString();
+    // mycard.cellPhone =createprofile!.your_details!.contact_no.toString();
+    // mycard.jobTitle =createprofile!.your_details!.title.toString();
+    //
+    //
+    // File ? dd=await _localFile;
+    // /// Save to file
+    //
+    //
+    // mycard.saveToFile(dd);
+    //
+    // print(mycard.getFormattedString());
+    //
+    // String contents = mycard. getFormattedString();
+    //
+    // final directory = await getApplicationDocumentsDirectory();
+    //
+    // final path = directory.path;
+    //
+    // final fs = File('$path/${currentuser!.uid}.vcf');
+    // fs.writeAsStringSync(contents);
+
+    List< contacts.SocialMedia> ? social_urls = [];
+
+    widget.desiredprofile!.personal_connection!.forEach(
+            (customer) {
+          social_urls.add(
+            contacts.SocialMedia(customer.url.toString()),
+          );
+        }
+    );
+
+    print("amna jaan "+    widget.desiredprofile!.your_details!.email.toString());
+      final newContact = contacts. Contact(
+        name:contacts.Name(first:widget.desiredprofile!.your_details!.name.toString(),last: ""),
+        displayName: "my name",
+        emails: [contacts.Email(widget.desiredprofile!.your_details!.email.toString())],
+        addresses: [contacts.Address(widget.desiredprofile!.your_details!.location .toString())],
+        phones: [contacts.Phone(widget.desiredprofile!.your_details!.contact_no.toString())],
+        socialMedias:social_urls,
+        photo:url,
+        websites: [contacts.Website("https://www.saintconnect.info/profile?uid=${widget.desiredprofile!.docid}")],
+        thumbnail: url,
+
+      );
+
+      await newContact.insert();
+
+      // Export contact to vCard
+
+      String mycard = newContact.toVCard();
 
 
-    mycard.saveToFile(dd);
+      final directory = await getApplicationDocumentsDirectory();
 
-    print(mycard.getFormattedString());
+      final path = directory.path;
 
-    String contents = mycard. getFormattedString();
+      final fs = File('$path/${currentuser!.uid}.vcf');
 
-    final directory = await getApplicationDocumentsDirectory();
+      fs.writeAsStringSync(mycard);
 
-    final path = directory.path;
+      return fs;
 
-    final fs = File('$path/${currentuser!.uid}.vcf');
-    fs.writeAsStringSync(contents);
+
+
+
+
 
   }
+
+
   Future<String> get _localPath async {
     final directory = await getApplicationDocumentsDirectory();
 
     return directory.path;
   }
+
+
   Future<File> get _localFile async {
     final path = await _localPath;
     return File('$path/${currentuser!.uid}.vcf');
@@ -568,12 +609,17 @@ var splited="0xff"+data2[0].toString();
             if (imageurl != null) {
               if (type == "images") {
                 setState(() {
-                  widget.desiredprofile!.images!.add(imageurl);
+                 if( !widget.desiredprofile!.images!.contains(images_url)){
+                   widget.desiredprofile!.images!.add(imageurl);
+                 }
                 });
               }
               else if (type == "accreditation") {
                 setState(() {
-                  widget.desiredprofile!.Accreditation!.add(imageurl);
+
+                  if( !widget.desiredprofile!.Accreditation!.contains(images_url)){
+                    widget.desiredprofile!.Accreditation!.add(imageurl);
+                  }
                 });
               }
               else if (type == "logo") {
@@ -617,7 +663,9 @@ var splited="0xff"+data2[0].toString();
             }
             else if (type == "images") {
               setState(() {
-                widget.desiredprofile!.images!.add(imageurl);
+                if( !widget.desiredprofile!.images!.contains(images_url)){
+                  widget.desiredprofile!.images!.add(imageurl);
+                }
               });
             }
             else if (type == "profile") {
@@ -635,11 +683,7 @@ var splited="0xff"+data2[0].toString();
                 widget.desiredprofile!.video = imageurl;
               });
             }
-            if (type == "images") {
-              setState(() {
-                widget.desiredprofile!.images!.add(imageurl);
-              });
-            }
+
             else if (type == "accreditation") {
               setState(() {
                 widget.desiredprofile!.Accreditation!.add(imageurl);
@@ -699,7 +743,7 @@ var splited="0xff"+data2[0].toString();
         isloading=false;
       });
 
-      _showErrorDialog("Please enter a valid link. For example https://www.saintconnect.info");
+      _showErrorDialog("Please enter a valid link . For example https://www.saintconnect.info");
 
     }
     else{
@@ -711,42 +755,142 @@ var splited="0xff"+data2[0].toString();
       }
 
 
-      await writeCounter().then((value)async {
+      await writeCounter().then((myvcf)async {
         try {
 
-          final file = await _localFile;
 
-          ///save to file
-
-          await  upload_vcf_file(myfile: file).then((vcf_image_url) async{
+          await  upload_vcf_file(myfile: myvcf).then((vcf_image_url) async{
 
             widget.desiredprofile!.vcf_url=vcf_image_url.toString();
 //lund
             setState(() {
               createpercentage = 0.35;
             });
+
             widget.desiredprofile!.design_appearance!.BackgroundTheme!.hexcode =bgcolors[0];
             widget.desiredprofile!.design_appearance!.TextColor!.hexcode =textcolors[0];
             widget.desiredprofile!.design_appearance!.ButtonColor!.hexcode =buttoncolors[0];
             widget.desiredprofile!.design_appearance!.BorderColor!.hexcode =bordercolors[0];
+            widget.desiredprofile!.qrcode=MyQrCode(docid:      widget.desiredprofile!.docid,
+                image: widget.desiredprofile!.qrcode!.image,
+                golden_image: widget.desiredprofile!.qrcode!.golden_image,
+                secondarycolor:      widget.desiredprofile!.design_appearance!.BorderColor!.hexcode,
+                backgroundcolor:  widget.desiredprofile!.design_appearance!.BackgroundTheme!.hexcode);
 
-            await database.update_profile(
-                createdprofile: widget.desiredprofile!, docid: widget.desiredprofile!.docid!)
-                .then((value) async {
-              setState(() {
-                createpercentage = 1;
+
+
+            //second color
+            await database.GenerateQRCode( documentid: widget.desiredprofile!.docid,context: context,
+              qrcolor: Color(int.parse(widget.desiredprofile!. design_appearance!.BorderColor!.hexcode!)),
+              backgroundgcolor: Color(int.parse( widget.desiredprofile!. design_appearance!.BackgroundTheme!.hexcode!)),
+            ).then((secondary_file) async {
+
+              //golden qr
+              await database.GenerateGoldenQRCode( documentid: widget.desiredprofile!.docid,context: context,
+
+              ).then((golden_img_file) async{
+
+                await database.uploadGoldenprofileQR
+                  (mycode:
+                MyQrCode(docid: widget.desiredprofile!.docid,
+                  image: '', secondarycolor: bordercolors[0],
+                  backgroundcolor: bgcolors[0],
+                ),
+                    myfile: golden_img_file
+
+                ).then((golden_img_url) async{
+                  widget.desiredprofile!.qrcode!.golden_image=golden_img_url;
+                  setState(() {
+                    createpercentage=0.7;
+                  });
+                  await database.uploadprofileQR
+                    (mycode:
+                  MyQrCode(docid:widget.desiredprofile!.docid,
+                    image:widget.desiredprofile!.qrcode!.image , secondarycolor: bordercolors[0],
+                    backgroundcolor: bgcolors[0],
+                  ),
+                      myfile: secondary_file
+
+                  ).then((secondory_qr_image_url) async{
+                    widget.desiredprofile!.qrcode!.image=secondory_qr_image_url;
+                    await database.update_profile_qrcode(mycode:
+                    MyQrCode(docid: widget.desiredprofile!.docid,
+                        image: secondory_qr_image_url, secondarycolor:
+                        widget.desiredprofile!.design_appearance!.BorderColor!.hexcode,
+                        backgroundcolor: widget.desiredprofile!.design_appearance!.BackgroundTheme!.hexcode,
+                        golden_image: golden_img_url
+                    )
+                    )
+                        .then((value) {
+
+                    });
+                    setState(() {
+                      createpercentage=0.75;
+                    });
+                    await database.update_user_payment(
+                      status: false,
+                      profile_created: true,
+                    ).then((value) async{
+                      setState(() {
+                        createpercentage=0.8;
+                      });
+
+                          await database.update_profile(
+                              createdprofile: widget.desiredprofile, docid: widget.desiredprofile!.docid!).then((value) {
+                            setState(() {
+                              isloading=false;
+                              createpercentage=1;
+                            });
+                            currentuser!.payment=false;
+                            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                                backgroundColor: mycolor,
+                                content: Text(
+                                  "Profile Updated", style: TextStyle(color: Colors.white),)));
+
+
+                            Navigator.of(context).pop();
+                          });
+
+
+                    });
+                  });
+
+                })  ;
               });
-              ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                  backgroundColor: mycolor,
-                  content: Text(
-                    "Profile Updated", style: TextStyle(color: Colors.white),)));
 
 
-              Navigator.of(context).pop();
-              setState(() {
-                isloading = false;
-              });
-                });
+            });
+
+
+
+
+            // await database.GenerateQRCode( documentid: widget.desiredprofile!.docid,context: context,
+            //   qrcolor: Color(int.parse(  widget.desiredprofile!. design_appearance!.BorderColor!.hexcode!)),
+            //   backgroundgcolor:  Color(int.parse(  widget.desiredprofile!. design_appearance!.BackgroundTheme!.hexcode!)),
+            // ).then((value) async{
+            //   await database.upload_updateprofileQR
+            //     (desiredprofile:widget.desiredprofile,
+            //     myfile: myfile
+            //   ).then((value) async{
+            //
+            //
+            //   setState(() {
+            //   createpercentage = 1;
+            //   });
+            //   ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+            //   backgroundColor: mycolor,
+            //   content: Text(
+            //   "Profile Updated", style: TextStyle(color: Colors.white),)));
+            //
+            //
+            //   Navigator.of(context).pop();
+            //   setState(() {
+            //   isloading = false;
+            //   });
+            //   });
+            // });
+            //
+
 //
           });
 
@@ -793,8 +937,9 @@ var splited="0xff"+data2[0].toString();
   String ? images;
 
   TextEditingController _media_url = TextEditingController();
+  TextEditingController profile_handle = TextEditingController();
   TextEditingController _media_title = TextEditingController();
-  
+ 
   Future<File?> _enter_media(
       {required String social_media_name, required String ? choice, required bool personel}) async {
     final height = MediaQuery
@@ -816,7 +961,7 @@ var splited="0xff"+data2[0].toString();
                   height: MediaQuery
                       .of(context)
                       .size
-                      .height * 0.2,
+                      .height * 0.3,
                   child: Column(
                     children: [
                       Container(
@@ -835,7 +980,9 @@ var splited="0xff"+data2[0].toString();
                               controller: _media_url,
                               textAlignVertical: TextAlignVertical.center,
                               decoration: InputDecoration(
-                                  hintText: 'Enter your ${social_media_name} URL'
+                                  hintText:
+                                  social_media_name=="WhatsApp"?"Enter your Whatsapp no":
+                                  'Enter your ${social_media_name} URL'
                                   ,
                                   border: InputBorder.none,
                                   hintStyle: TextStyle(
@@ -849,71 +996,118 @@ var splited="0xff"+data2[0].toString();
                         ),
 
                       ),
+
+                      SizedBox(height: height*0.025,),
+
+
+                      Container(
+                        alignment: Alignment.centerLeft,
+                        child: Container(
+                            height: height*0.054,
+                            width: width*1,
+
+                            decoration: BoxDecoration(
+                                color: Colors.white,
+
+                                borderRadius: BorderRadius.circular(10)
+                            ),
+                            padding: EdgeInsets.only(left: width*0.05),
+                            child:  TextField(
+                              controller: profile_handle,
+                              textAlignVertical: TextAlignVertical.center,
+                              decoration: InputDecoration(
+                                  hintText: 'Enter profile handle',
+                                  border: InputBorder.none,
+                                  hintStyle: TextStyle(
+                                      color: Color(0xff5D5D5D),
+                                      fontFamily: 'Corporate A Italic',
+                                      fontSize: 15
+
+                                  )
+                              ),
+                            )
+                        ),
+
+                      ),
+
                       SizedBox(height: height * 0.05,),
+
                       InkWell(
                         onTap: () {
-                          bool exist = false;
-
-                          if(_media_url.text.isNotEmpty && (_media_url.text.startsWith("HTTPS://") || _media_url.text.startsWith("https://")))
-
-                           {
+                        if(profile_handle.text.isNotEmpty  && _media_url.text.isNotEmpty){
+                          if(social_media_name=="WhatsApp"){
                             if (personel) {
-                              widget.desiredprofile!.personal_connection!.forEach((
-                                  element) {
-                                if (element.media == choice) {
-                                  exist = true;
-                                }
-                              });
 
-                              if (exist == false) {
+                              widget.desiredprofile!.personal_connection!.add(
+                                  SocialMedia(
+                                      media: choice,
+                                      url: _media_url.text,
+                                      title:  social_media_name,
+                                      profile_handle: profile_handle.text
+                                  ));
+                              _media_url.clear();
+                              _media_title.clear();
+                              profile_handle.clear();
+
+                              Navigator.of(context).pop();
+
+                            }
+                            else {
+
+
+                              widget.desiredprofile!.business_connection!.add(
+                                  SocialMedia(
+                                      media: choice,
+                                      url: _media_url.text,
+                                      title:social_media_name,
+                                      profile_handle: profile_handle.text
+                                  ));
+                              _media_url.clear();
+                              _media_title.clear();
+                              profile_handle.clear();
+                              Navigator.of(context).pop();
+                            }
+                          }
+                          else{
+                            if(
+                            _media_url.text.startsWith("HTTPS://")  || _media_url.text.startsWith("https://" ))
+                            {
+                              if (personel) {
+
                                 widget.desiredprofile!.personal_connection!.add(
                                     SocialMedia(
                                         media: choice,
                                         url: _media_url.text,
-                                      title:  _media_title.text
+                                        title:  social_media_name,
+                                        profile_handle: profile_handle.text
                                     ));
-                                        _media_url.clear();
+                                _media_url.clear();
                                 _media_title.clear();
-                                _media_title.clear();
+                                profile_handle.clear();
+
                                 Navigator.of(context).pop();
+
                               }
                               else {
-                                        _media_url.clear();
-                                _media_title.clear();
-                                _media_title.clear();
-                                Navigator.of(context).pop();
-                              }
-                            }
-                            else {
-                              widget.desiredprofile!.business_connection!.forEach((
-                                  element) {
-                                if (element.media == choice) {
-                                  exist = true;
-                                }
-                              });
 
-                              if (exist == false) {
+
                                 widget.desiredprofile!.business_connection!.add(
                                     SocialMedia(
                                         media: choice,
                                         url: _media_url.text,
-                                      title: _media_title.text
+                                        title:social_media_name,
+                                        profile_handle: profile_handle.text
                                     ));
-                                        _media_url.clear();
+                                _media_url.clear();
                                 _media_title.clear();
-                                _media_title.clear();
-                                Navigator.of(context).pop();
-                              }
-                              else {
-                                        _media_url.clear();
-                                _media_title.clear();
+                                profile_handle.clear();
                                 Navigator.of(context).pop();
                               }
                             }
+                            else{
+                              _showErrorDialog("Please enter a valid link. For example https://www.saintconnect.info");
+                            }
                           }
-                          else{
-                            _showErrorDialog("Please enter a valid link. For example https://www.saintconnect.info");
-
                           }
                         },
                         child: Container(
@@ -938,6 +1132,480 @@ var splited="0xff"+data2[0].toString();
                     ],
                   ),
                 )));
+    return choosedfile;
+  }
+
+  Future<File?> _edit_media(
+      {required SocialMedia editmedia, required bool personel}) async {
+
+    if(editmedia.title=="WhatsApp"){
+      List splitted_data=editmedia.url.toString().split("https://api.whatsapp.com/send?phone=");
+      _media_url.text=splitted_data[1];
+    }
+    else{
+      _media_url.text=editmedia.url.toString();      
+    }
+    
+    
+    profile_handle.text=editmedia.profile_handle.toString();
+    final height = MediaQuery
+        .of(context)
+        .size
+        .height;
+    final width = MediaQuery
+        .of(context)
+        .size
+        .width;
+    File ? choosedfile;
+
+    await showDialog(
+        context: context,
+        builder: (ctx) =>
+            AlertDialog(
+                backgroundColor: Color(0xff111111),
+                title: BuildItalicText(txt: editmedia.title, fontsize: 0.025),
+                content: Container(
+                  height: MediaQuery
+                      .of(context)
+                      .size
+                      .height * 0.3,
+                  child: Column(
+                    children: [
+                      Container(
+                        alignment: Alignment.centerLeft,
+                        child: Container(
+                            height: height * 0.054,
+                            width: width * 1,
+
+                            decoration: BoxDecoration(
+                                color: Colors.white,
+
+                                borderRadius: BorderRadius.circular(10)
+                            ),
+                            padding: EdgeInsets.only(left: width * 0.05),
+                            child: TextField(
+                              controller: _media_url,
+                              textAlignVertical: TextAlignVertical.center,
+                              decoration: InputDecoration(
+                                  hintText:    editmedia.media=="WhatsApp"?"Enter your Whatsapp no":
+                                  'Enter your ${editmedia.media} URL',
+                                  border: InputBorder.none,
+                                  hintStyle: TextStyle(
+                                      color: Color(0xff5D5D5D),
+                                      fontFamily: 'Corporate A Italic',
+                                      fontSize: 15
+
+                                  )
+                              ),
+                            )
+                        ),
+
+                      ),
+                      SizedBox(height: height*0.025,),
+
+
+                      Container(
+                        alignment: Alignment.centerLeft,
+                        child: Container(
+                            height: height*0.054,
+                            width: width*1,
+
+                            decoration: BoxDecoration(
+                                color: Colors.white,
+
+                                borderRadius: BorderRadius.circular(10)
+                            ),
+                            padding: EdgeInsets.only(left: width*0.05),
+                            child:  TextField(
+                              controller: profile_handle,
+                              textAlignVertical: TextAlignVertical.center,
+                              decoration: InputDecoration(
+                                  hintText: 'Enter profile handle',
+                                  border: InputBorder.none,
+                                  hintStyle: TextStyle(
+                                      color: Color(0xff5D5D5D),
+                                      fontFamily: 'Corporate A Italic',
+                                      fontSize: 15
+
+                                  )
+                              ),
+                            )
+                        ),
+
+                      ),
+
+                      SizedBox(height: height * 0.05,),
+
+
+
+                      InkWell(
+                        onTap: (){
+
+                          if(profile_handle.text.isNotEmpty){
+
+                            if(personel){
+
+                              if(editmedia.title=="WhatsApp"){
+
+                                for (int i=0;i<widget.desiredprofile!.personal_connection!.length;i++){
+                                  if(widget.desiredprofile!.personal_connection![i].media==editmedia.media){
+                                    widget.desiredprofile!.personal_connection![i]=SocialMedia(
+                                        media: editmedia.media,
+                                        url: _media_url.text,
+                                        title:editmedia.title,
+                                        profile_handle: profile_handle.text
+                                    );
+
+                                    _media_url.clear();
+                                    profile_handle.clear();
+                                    _media_title.clear();
+                                    Navigator.of(context).pop();
+                                  }
+                                }
+
+                              }
+                              else{
+
+                                if(_media_url.text.isNotEmpty && (_media_url.text.startsWith("HTTPS://") || _media_url.text.startsWith("https://"))){
+
+                                  for (int i=0;i<widget.desiredprofile!.personal_connection!.length;i++){
+                                    if(widget.desiredprofile!.personal_connection![i].media==editmedia.media){
+                                      widget.desiredprofile!.personal_connection![i]=SocialMedia(
+                                          media: editmedia.media,
+                                          url: _media_url.text,
+                                          title:editmedia.title,
+                                          profile_handle: profile_handle.text
+                                      );
+
+                                      _media_url.clear();
+                                      profile_handle.clear();
+                                      _media_title.clear();
+                                      Navigator.of(context).pop();
+                                    }
+                                  }
+
+                                }
+                                else{
+                                  print("kala 4");
+                                  _showErrorDialog("Please enter a valid link. For example https://www.saintconnect.info");
+
+                                }
+                              }
+
+
+
+                            }
+                            else{
+
+                              if(editmedia.title=="WhatsApp"){
+                                for (int i=0;i<widget.desiredprofile!.business_connection!.length;i++){
+                                  if(widget.desiredprofile!.business_connection![i].media==editmedia.media){
+                                    widget.desiredprofile!.business_connection![i]=SocialMedia(
+                                        media: editmedia.media,
+                                        url: _media_url.text,
+                                        title:editmedia.title,
+                                        profile_handle: profile_handle.text
+                                    );
+
+                                  }
+                                }
+                                _media_url.clear();
+                                profile_handle.clear();
+                                _media_title.clear();
+
+                                Navigator.of(context).pop();
+
+                              }
+                              else{
+                                if(_media_url.text.isNotEmpty && (_media_url.text.startsWith("HTTPS://") || _media_url.text.startsWith("https://"))){
+
+                                  for (int i=0;i<widget.desiredprofile!.business_connection!.length;i++){
+                                    if(widget.desiredprofile!.business_connection![i].media==editmedia.media){
+                                      widget.desiredprofile!.business_connection![i]=SocialMedia(
+                                          media: editmedia.media,
+                                          url: _media_url.text,
+                                          title:editmedia.title,
+                                          profile_handle: profile_handle.text
+                                      );
+                                    }
+                                  }
+
+                                  _media_url.clear();
+                                  profile_handle.clear();
+                                  _media_title.clear();
+                                  Navigator.of(context).pop();
+                                }
+                                else{
+                                  _showErrorDialog("Please enter a valid link. For example https://www.saintconnect.info");
+
+                                }
+                              }
+
+
+
+
+                            }
+
+                          }
+
+                        },
+                        child: Container(
+                          alignment: Alignment.centerLeft,
+                          child: Container(
+                            height: height*0.054,
+                            width: width*1,
+                            decoration: BoxDecoration(
+                                color: Color(0xff111111),
+                                borderRadius: BorderRadius.circular(10),
+                                border: Border.fromBorderSide(BorderSide(color: mycolor))
+                            ),
+                            child: Center(child: BuildText(txt: "Save", fontsize: 0.025)),
+                          ),
+
+                        ),
+                      )
+
+
+                    ],
+                  ),
+                ))).then((value) {
+                  _media_url.clear();
+                  profile_handle.clear();
+                  _media_title.clear();
+    });
+    return choosedfile;
+  }
+
+  Future<File?> _edit_custom_media(
+      {required SocialMedia editmedia, required bool personel}) async {
+    _media_url.text=editmedia.url.toString();
+
+    profile_handle.text=editmedia.title.toString();
+    final height = MediaQuery
+        .of(context)
+        .size
+        .height;
+    final width = MediaQuery
+        .of(context)
+        .size
+        .width;
+    File ? choosedfile;
+
+    await showDialog(
+        context: context,
+        builder: (ctx) =>
+            AlertDialog(
+                backgroundColor: Color(0xff111111),
+                title: BuildItalicText(txt: editmedia.title, fontsize: 0.025),
+                content: Container(
+                  height: MediaQuery
+                      .of(context)
+                      .size
+                      .height * 0.3,
+                  child: Column(
+                    children: [
+                      Container(
+                        alignment: Alignment.centerLeft,
+                        child: Container(
+                            height: height * 0.054,
+                            width: width * 1,
+
+                            decoration: BoxDecoration(
+                                color: Colors.white,
+
+                                borderRadius: BorderRadius.circular(10)
+                            ),
+                            padding: EdgeInsets.only(left: width * 0.05),
+                            child: TextField(
+                              controller: _media_url,
+                              textAlignVertical: TextAlignVertical.center,
+                              decoration: InputDecoration(
+                                  hintText:    editmedia.media=="WhatsApp"?"Enter your Whatsapp no":
+                                  'Enter your ${editmedia.media} URL',
+                                  border: InputBorder.none,
+                                  hintStyle: TextStyle(
+                                      color: Color(0xff5D5D5D),
+                                      fontFamily: 'Corporate A Italic',
+                                      fontSize: 15
+                                      
+                                  )
+                              ),
+                            )
+                        ),
+
+                      ),
+                      SizedBox(height: height*0.025,),
+
+
+                      Container(
+                        alignment: Alignment.centerLeft,
+                        child: Container(
+                            height: height*0.054,
+                            width: width*1,
+
+                            decoration: BoxDecoration(
+                                color: Colors.white,
+
+                                borderRadius: BorderRadius.circular(10)
+                            ),
+                            padding: EdgeInsets.only(left: width*0.05),
+                            child:  TextField(
+                              controller: profile_handle,
+                              textAlignVertical: TextAlignVertical.center,
+                              decoration: InputDecoration(
+                                  hintText: 'Enter title ',
+                                  border: InputBorder.none,
+                                  hintStyle: TextStyle(
+                                      color: Color(0xff5D5D5D),
+                                      fontFamily: 'Corporate A Italic',
+                                      fontSize: 15
+
+                                  )
+                              ),
+                            )
+                        ),
+
+                      ),
+
+                      SizedBox(height: height * 0.05,),
+
+
+
+                      InkWell(
+                        onTap: (){
+                          if(profile_handle.text.isNotEmpty){
+
+
+
+
+                            if(personel){
+
+                            if(editmedia.media=="WhatsApp"){
+                              for (int i=0;i<widget.desiredprofile!.personal_connection!.length;i++){
+                                if(widget.desiredprofile!.personal_connection![i].media==editmedia.media){
+                                  widget.desiredprofile!.personal_connection![i]=SocialMedia(
+                                      media: editmedia.media,
+                                      url: _media_url.text,
+                                      title:profile_handle.text,
+                                      profile_handle: ""
+                                  );
+
+                                  _media_url.clear();
+                                  profile_handle.clear();
+                                  _media_title.clear();
+                                  Navigator.of(context).pop();
+                                }
+                              }
+                            }
+                            else{
+                              if(_media_url.text.isNotEmpty && (_media_url.text.startsWith("HTTPS://") || _media_url.text.startsWith("https://"))){
+
+                                for (int i=0;i<widget.desiredprofile!.personal_connection!.length;i++){
+                                  if(widget.desiredprofile!.personal_connection![i].media==editmedia.media){
+                                    widget.desiredprofile!.personal_connection![i]=SocialMedia(
+                                        media: editmedia.media,
+                                        url: _media_url.text,
+                                        title:profile_handle.text,
+                                        profile_handle: ""
+                                    );
+
+                                    _media_url.clear();
+                                    profile_handle.clear();
+                                    _media_title.clear();
+                                    Navigator.of(context).pop();
+                                  }
+                                }
+                              }
+                              else{
+                                _showErrorDialog("Please enter a valid link. For example https://www.saintconnect.info");
+
+                              }
+
+                            }
+
+
+                            }
+                            else{
+
+                              if(editmedia.media=="WhatsApp"){
+                                for (int i=0;i<widget.desiredprofile!.business_connection!.length;i++){
+                                  if(widget.desiredprofile!.business_connection![i].media==editmedia.media){
+                                    widget.desiredprofile!.business_connection![i]=SocialMedia(
+                                        media: editmedia.media,
+                                        url: _media_url.text,
+                                        title:profile_handle.text,
+                                        profile_handle: ""
+                                    );
+
+
+                                  }
+                                }
+                                _media_url.clear();
+                                profile_handle.clear();
+                                _media_title.clear();
+                                Navigator.of(context).pop();
+                              }
+                              else{
+                                if(_media_url.text.isNotEmpty && (_media_url.text.startsWith("HTTPS://") || _media_url.text.startsWith("https://"))){
+
+                                  for (int i=0;i<widget.desiredprofile!.business_connection!.length;i++){
+                                    if(widget.desiredprofile!.business_connection![i].media==editmedia.media){
+                                      widget.desiredprofile!.business_connection![i]=SocialMedia(
+                                          media: editmedia.media,
+                                          url: _media_url.text,
+                                          title:profile_handle.text,
+                                          profile_handle: ""
+                                      );
+
+                                    }
+                                  }
+
+                                  _media_url.clear();
+                                  profile_handle.clear();
+                                  _media_title.clear();
+                                  Navigator.of(context).pop();
+
+
+                                }
+                                else{
+                                  _showErrorDialog("Please enter a valid link. For example https://www.saintconnect.info");
+
+                                }
+                              }
+
+
+
+
+
+                            }
+
+                          }
+
+                        },
+                        child: Container(
+                          alignment: Alignment.centerLeft,
+                          child: Container(
+                            height: height*0.054,
+                            width: width*1,
+                            decoration: BoxDecoration(
+                                color: Color(0xff111111),
+                                borderRadius: BorderRadius.circular(10),
+                                border: Border.fromBorderSide(BorderSide(color: mycolor))
+                            ),
+                            child: Center(child: BuildText(txt: "Save", fontsize: 0.025)),
+                          ),
+
+                        ),
+                      )
+
+
+                    ],
+                  ),
+                ))).then((value) {
+      _media_url.clear();
+      profile_handle.clear();
+      _media_title.clear();
+    });
     return choosedfile;
   }
 
@@ -1039,14 +1707,16 @@ var splited="0xff"+data2[0].toString();
                             await _show_my_Dialog('social_url').then((
                                 value) async {
                               if (value != null) {
-                                mysetState(() {
-                                  choosedfile = value;
-                                  saving = true;
-                                });
+
                                 double filelength = 0;
                                 filelength =
-                                (choosedfile!.lengthSync() / 1000000);
+                                (value.lengthSync() / 1000000);
                                 if (filelength < 4) {
+                                  mysetState(() {
+                                   saving=true;
+                                   choosedfile = value;
+
+                                  });
                                   await upload_my_file(myfile: choosedfile)
                                       .then((value) {
                                     choosedfile_url = value;
@@ -1055,6 +1725,9 @@ var splited="0xff"+data2[0].toString();
                                       saving = false;
                                     });
                                   });
+                                }
+                                else{
+                                  _showErrorDialog('File should be of less than 4 MB size');
                                 }
                               }
                             });
@@ -1088,20 +1761,39 @@ var splited="0xff"+data2[0].toString();
                             txt: "Please wait a moment", fontsize: 0.025) :
                         InkWell(
                           onTap: () {
-                            if(_media_url.text.isNotEmpty && (_media_url.text.startsWith("HTTPS://") || _media_url.text.startsWith("https://"))){
-                              if (_media_url.text.isNotEmpty) {
-                                bool exist = false;
+                            if(_media_url.text.isNotEmpty){
 
-                                if (personel) {
-                                  widget.desiredprofile!.personal_connection!.forEach((
-                                      element) {
-                                    if (element.media == choice) {
-                                      exist = true;
-                                      int desiredindex = widget.desiredprofile!
-                                          .personal_connection!.indexWhere((
-                                          element) => element.media == choice);
-                                      widget.desiredprofile!
-                                          .personal_connection![desiredindex] =
+                              if(  (_media_url.text.startsWith("HTTPS://") || _media_url.text.startsWith("https://"))){
+                                if (_media_url.text.isNotEmpty) {
+                                  bool exist = false;
+
+                                  if (personel) {
+                                    widget.desiredprofile!.personal_connection!.forEach((
+                                        element) {
+                                      if (element.media == choice) {
+                                        exist = true;
+                                        int desiredindex = widget.desiredprofile!
+                                            .personal_connection!.indexWhere((
+                                            element) => element.media == choice);
+                                        widget.desiredprofile!
+                                            .personal_connection![desiredindex] =
+                                            SocialMedia(
+                                                media:
+                                                choosedfile_url!.isEmpty
+                                                    ? "https://firebasestorage.googleapis.com/v0/b/saintconnect-9c0c9.appspot.com/o/Social_Icons%2FSafari.png?alt=media&token=df49bbf4-49e5-41dd-ae3d-bc2e388584eb"
+                                                    :
+                                                choosedfile_url,
+                                                url: _media_url.text.isEmpty
+                                                    ? "Custom URL"
+                                                    : _media_url.text,
+                                                title:  _media_title.text,
+                                                profile_handle: ""
+                                            );
+                                      }
+                                    });
+
+                                    if (exist == false) {
+                                      widget.desiredprofile!.personal_connection!.add(
                                           SocialMedia(
                                               media:
                                               choosedfile_url!.isEmpty
@@ -1111,44 +1803,46 @@ var splited="0xff"+data2[0].toString();
                                               url: _media_url.text.isEmpty
                                                   ? "Custom URL"
                                                   : _media_url.text,
-                                            title:  _media_title.text
-                                          );
+                                              title:  _media_title.text,
+                                              profile_handle: ""
+                                          ));
+                                      _media_url.clear();
+                                      _media_title.clear();
+                                      Navigator.of(context).pop();
                                     }
-                                  });
-
-                                  if (exist == false) {
-                                    widget.desiredprofile!.personal_connection!.add(
-                                        SocialMedia(
-                                            media:
-                                            choosedfile_url!.isEmpty
-                                                ? "https://firebasestorage.googleapis.com/v0/b/saintconnect-9c0c9.appspot.com/o/Social_Icons%2FSafari.png?alt=media&token=df49bbf4-49e5-41dd-ae3d-bc2e388584eb"
-                                                :
-                                            choosedfile_url,
-                                            url: _media_url.text.isEmpty
-                                                ? "Custom URL"
-                                                : _media_url.text,
-                                          title:  _media_title.text
-                                        ));
-                                            _media_url.clear();
-                                _media_title.clear();
-                                    Navigator.of(context).pop();
+                                    else {
+                                      _media_url.clear();
+                                      _media_title.clear();
+                                      Navigator.of(context).pop();
+                                    }
                                   }
                                   else {
-                                            _media_url.clear();
-                                _media_title.clear();
-                                    Navigator.of(context).pop();
-                                  }
-                                }
-                                else {
-                                  widget.desiredprofile!.business_connection!.forEach((
-                                      element) {
-                                    if (element.media == choice) {
-                                      exist = true;
-                                      int desiredindex = widget.desiredprofile!
-                                          .business_connection!.indexWhere((
-                                          element) => element.media == choice);
-                                      widget.desiredprofile!
-                                          .business_connection![desiredindex] =
+                                    widget.desiredprofile!.business_connection!.forEach((
+                                        element) {
+                                      if (element.media == choice) {
+                                        exist = true;
+                                        int desiredindex = widget.desiredprofile!
+                                            .business_connection!.indexWhere((
+                                            element) => element.media == choice);
+                                        widget.desiredprofile!
+                                            .business_connection![desiredindex] =
+                                            SocialMedia(
+                                                media:
+                                                choosedfile_url!.isEmpty
+                                                    ? "https://firebasestorage.googleapis.com/v0/b/saintconnect-9c0c9.appspot.com/o/Social_Icons%2FSafari.png?alt=media&token=df49bbf4-49e5-41dd-ae3d-bc2e388584eb"
+                                                    :
+                                                choosedfile_url,
+                                                url: _media_url.text.isEmpty
+                                                    ? "Custom URL"
+                                                    : _media_url.text,
+                                                title:  _media_title.text,
+                                                profile_handle: ""
+                                            );
+                                      }
+                                    });
+
+                                    if (exist == false) {
+                                      widget.desiredprofile!.business_connection!.add(
                                           SocialMedia(
                                               media:
                                               choosedfile_url!.isEmpty
@@ -1158,39 +1852,28 @@ var splited="0xff"+data2[0].toString();
                                               url: _media_url.text.isEmpty
                                                   ? "Custom URL"
                                                   : _media_url.text,
-                                            title:  _media_title.text
-                                          );
+                                              title:  _media_title.text,
+                                              profile_handle: ""
+                                          ));
+                                      _media_url.clear();
+                                      _media_title.clear();
+                                      Navigator.of(context).pop();
                                     }
-                                  });
-
-                                  if (exist == false) {
-                                    widget.desiredprofile!.business_connection!.add(
-                                        SocialMedia(
-                                            media:
-                                            choosedfile_url!.isEmpty
-                                                ? "https://firebasestorage.googleapis.com/v0/b/saintconnect-9c0c9.appspot.com/o/Social_Icons%2FSafari.png?alt=media&token=df49bbf4-49e5-41dd-ae3d-bc2e388584eb"
-                                                :
-                                            choosedfile_url,
-                                            url: _media_url.text.isEmpty
-                                                ? "Custom URL"
-                                                : _media_url.text,
-                                          title:  _media_title.text
-                                        ));
-                                            _media_url.clear();
-                                _media_title.clear();
-                                    Navigator.of(context).pop();
-                                  }
-                                  else {
-                                            _media_url.clear();
-                                _media_title.clear();
-                                    Navigator.of(context).pop();
+                                    else {
+                                      _media_url.clear();
+                                      _media_title.clear();
+                                      Navigator.of(context).pop();
+                                    }
                                   }
                                 }
+                              }else{
+                                _showErrorDialog("Please enter a valid link. For example https://www.saintconnect.info");
+
                               }
-                            }else{
-                              _showErrorDialog("Please enter a valid link. For example https://www.saintconnect.info");
 
                             }
+
+
 
 
 
@@ -1388,7 +2071,7 @@ var splited="0xff"+data2[0].toString();
 
   List<File> accreditation_file = [];
 
-  List<File> ? images_file = [];
+
   List<String> images_url = [];
 
 
@@ -1425,10 +2108,6 @@ var splited="0xff"+data2[0].toString();
           selected_file = File(image.path);
         }
         else if (operation == "images") {
-          double filelength = (File(image.path).lengthSync() / 1000000);
-          if (filelength < 4) {
-            images_file!.add(File(image.path));
-          }
 
 
           selected_file = File(image.path);
@@ -1463,11 +2142,8 @@ var splited="0xff"+data2[0].toString();
           selected_file = File(image.path);
         }
         else if (operation == "images") {
-          double filelength = (File(image!.path).lengthSync() / 1000000);
-          if (filelength < 4) {
-            images_file!.add(File(image.path));
-          }
-          selected_file = File(image.path);
+
+          selected_file = File(image!.path);
         }
 
         else if (operation == "bgimage") {
@@ -2423,18 +3099,53 @@ setState(() {
 
                                     Stack(
                                       children: [
-                                        Container(
-                                          decoration: BoxDecoration(
+                                        InkWell(
+                                          onTap: (){
 
-                                              borderRadius: BorderRadius.circular(
-                                                  10),
-                                              image: DecorationImage(
-                                                  fit: BoxFit.cover,
-                                                  image: NetworkImage(
-                                                      widget.desiredprofile!
-                                                          .personal_connection![index]
-                                                          .media!)
-                                              )
+                                          
+                                            if(widget.desiredprofile!.personal_connection![index].title!="facebook"
+&&
+    widget.desiredprofile!.personal_connection![index].title!="Instagram"
+&&
+    widget.desiredprofile!.personal_connection![index].title!="Snapchat"
+&& widget.desiredprofile!.personal_connection![index].title!="Twitter"
+&& widget.desiredprofile!.personal_connection![index].title!="WhatsApp"
+&& widget.desiredprofile!.personal_connection![index].title!="LinkedIn"
+&& widget.desiredprofile!.personal_connection![index].title!="YouTube"
+
+){
+  _edit_custom_media(
+      personel: true,
+      editmedia: widget.desiredprofile!
+          .personal_connection![index]
+  );
+
+}
+else{
+  
+  _edit_media(
+      personel: true,
+      editmedia: widget.desiredprofile!
+          .personal_connection![index]
+  );
+
+}
+
+
+                                          },
+                                          child: Container(
+                                            decoration: BoxDecoration(
+
+                                                borderRadius: BorderRadius.circular(
+                                                    10),
+                                                image: DecorationImage(
+                                                    fit: BoxFit.cover,
+                                                    image: NetworkImage(
+                                                        widget.desiredprofile!
+                                                            .personal_connection![index]
+                                                            .media!)
+                                                )
+                                            ),
                                           ),
                                         ),
                                         Positioned(
@@ -2970,21 +3681,52 @@ setState(() {
                                     ) :
                                     Stack(
                                       children: [
-                                        Container(
+                                        InkWell(
+                                          onTap: (){
 
-                                          height: 100,
-                                          width: 100,
-                                          decoration: BoxDecoration(
+                                            if(widget.desiredprofile!.business_connection![index].title!="facebook"
+                                                &&
+                                                widget.desiredprofile!.business_connection![index].title!="Instagram"
+                                                &&
+                                                widget.desiredprofile!.business_connection![index].title!="Snapchat"
+                                                && widget.desiredprofile!.business_connection![index].title!="Twitter"
+                                                && widget.desiredprofile!.business_connection![index].title!="WhatsApp"
+                                                && widget.desiredprofile!.business_connection![index].title!="LinkedIn"
+                                                && widget.desiredprofile!.business_connection![index].title!="YouTube"
 
-                                              borderRadius: BorderRadius.circular(
-                                                  10),
-                                              image: DecorationImage(
-                                                  fit: BoxFit.cover,
-                                                  image: NetworkImage(
-                                                      widget.desiredprofile!
-                                                          .business_connection![index]
-                                                          .media!)
-                                              )
+                                            ){
+                                              _edit_custom_media(
+                                                  personel: false,
+                                                  editmedia: widget.desiredprofile!
+                                                      .business_connection![index]
+                                              );
+
+                                            }
+                                            else{
+                                              _edit_media(
+                                                  personel: false,
+                                                  editmedia: widget.desiredprofile!
+                                                      .business_connection![index]
+                                              );
+                                            }
+
+                                          },
+                                          child: Container(
+
+                                            height: 100,
+                                            width: 100,
+                                            decoration: BoxDecoration(
+
+                                                borderRadius: BorderRadius.circular(
+                                                    10),
+                                                image: DecorationImage(
+                                                    fit: BoxFit.cover,
+                                                    image: NetworkImage(
+                                                        widget.desiredprofile!
+                                                            .business_connection![index]
+                                                            .media!)
+                                                )
+                                            ),
                                           ),
                                         ),
                                         Positioned(
@@ -3046,10 +3788,10 @@ setState(() {
                               Container(
                                 margin: EdgeInsets.only(left: width*0.02,bottom: height*0.02),
                                 child: CircleAvatar(
-                                  radius: height*0.014,
+                                   radius: height*0.0125,
                                   backgroundColor: Color(int.parse(bgcolors[index])),
                                   child: CircleAvatar(
-                                     radius: height*0.013,
+                                     radius: height*0.011,
                                     backgroundColor: bgcolor,
                                     child: InkWell(
                                         onTap: ()async{
@@ -3067,7 +3809,7 @@ setState(() {
                               InkWell(
                                 onTap: (){
                                   setState((){
-                                    widget.desiredprofile!.                                    design_appearance!.BackgroundTheme=
+                                    widget.desiredprofile!. design_appearance!.BackgroundTheme=
                                         CustomColor(hexcode: bgcolors[index].toString());
                                   });
                                   String desiredcolor= bgcolors[index];
@@ -3080,10 +3822,10 @@ setState(() {
                                 Container(
                                   margin: EdgeInsets.only(left: width*0.02,bottom: height*0.02),
                                   child: CircleAvatar(
-                                    radius: height*0.014,
+                                     radius: height*0.0125,
                                     backgroundColor: goldencolor,
                                     child: CircleAvatar(
-                                      radius: height*0.013,
+                                      radius: height*0.011,
                                       backgroundColor: Color(int.parse(bgcolors[index])),
                                     ),
                                   ),
@@ -3092,7 +3834,7 @@ setState(() {
                                   margin: EdgeInsets.only(left: width*0.02,bottom: height*0.02),
                                   child: CircleAvatar(
                                       backgroundColor: goldencolor,
-                                      radius: height*0.014,
+                                       radius: height*0.0125,
                                     child: CircleAvatar(
                                       radius:
                                       height*0.013,
@@ -3128,10 +3870,10 @@ setState(() {
                                 child: Container(
                                   margin: EdgeInsets.only(left: width*0.02,bottom: height*0.02),
                                   child: CircleAvatar(
-                                    radius: height*0.014,
+                                     radius: height*0.0125,
                                     backgroundColor: Color(int.parse(buttoncolors[index])),
                                     child: CircleAvatar(
-                                      radius: height*0.013,
+                                      radius: height*0.011,
                                       backgroundColor: bgcolor,
                                       child: Icon(Icons.add,color: Color(int.parse(buttoncolors[index])),size: height*0.0185),
                                     ),
@@ -3156,10 +3898,10 @@ setState(() {
                                 Container(
                                   margin: EdgeInsets.only(left: width*0.02,bottom: height*0.02),
                                   child: CircleAvatar(
-                                    radius: height*0.014,
+                                     radius: height*0.0125,
                                     backgroundColor:goldencolor,
                                     child: CircleAvatar(
-                                      radius: height*0.013,
+                                      radius: height*0.011,
                                       backgroundColor: Color(int.parse(buttoncolors[index])),
                                     ),
                                   ),
@@ -3168,7 +3910,7 @@ setState(() {
                                   margin: EdgeInsets.only(left: width*0.02,bottom: height*0.02),
                                   child: CircleAvatar(
                                     backgroundColor: goldencolor,
-                                    radius: height*0.014,
+                                     radius: height*0.0125,
                                     child: CircleAvatar(
                                       radius:
                                       height*0.013,
@@ -3207,10 +3949,10 @@ setState(() {
                                 child: Container(
                                   margin: EdgeInsets.only(left: width*0.02,bottom: height*0.02),
                                   child: CircleAvatar(
-                                    radius: height*0.014,
+                                     radius: height*0.0125,
                                     backgroundColor: Color(int.parse(textcolors[index])),
                                     child: CircleAvatar(
-                                       radius: height*0.013,
+                                       radius: height*0.011,
                                       backgroundColor: bgcolor,
                                       child: Icon(Icons.add,color: Color(int.parse(textcolors[index])),size: height*0.0185),
                                     ),
@@ -3235,10 +3977,10 @@ setState(() {
                                 Container(
                                   margin: EdgeInsets.only(left: width*0.02,bottom: height*0.02),
                                   child: CircleAvatar(
-                                    radius: height*0.014,
+                                     radius: height*0.0125,
                                     backgroundColor: goldencolor,
                                     child: CircleAvatar(
-                                      radius: height*0.013,
+                                      radius: height*0.011,
                                       backgroundColor: Color(int.parse(textcolors[index])),
                                     ),
                                   ),
@@ -3247,7 +3989,7 @@ setState(() {
                                   margin: EdgeInsets.only(left: width*0.02,bottom: height*0.02),
                                   child: CircleAvatar(
                                       backgroundColor: goldencolor,
-                                      radius: height*0.014,
+                                       radius: height*0.0125,
                                     child: CircleAvatar(
                                       radius:
                                       height*0.013,
@@ -3284,10 +4026,10 @@ setState(() {
                                 child: Container(
                                   margin: EdgeInsets.only(left: width*0.02,bottom: height*0.02),
                                   child: CircleAvatar(
-                                    radius: height*0.014,
+                                    radius: height*0.0125,
                                     backgroundColor: Color(int.parse(bordercolors[index])),
                                     child: CircleAvatar(
-                                       radius: height*0.013,
+                                       radius: height*0.012,
                                       backgroundColor: bgcolor,
                                       child: Icon(Icons.add,color: Color(int.parse(bordercolors[index])),size: height*0.0185),
                                     ),
@@ -3312,10 +4054,10 @@ setState(() {
                                 Container(
                                   margin: EdgeInsets.only(left: width*0.02,bottom: height*0.02),
                                   child: CircleAvatar(
-                                    radius: height*0.014,
+                                    radius: height*0.0125,
                                     backgroundColor: goldencolor,
                                     child: CircleAvatar(
-                                      radius: height*0.013,
+                                      radius: height*0.01,
                                       backgroundColor: Color(int.parse(bordercolors[index])),
                                     ),
                                   ),
@@ -3324,11 +4066,11 @@ setState(() {
                                   margin: EdgeInsets.only(left: width*0.02,bottom: height*0.02),
                                   child: CircleAvatar(
                                       backgroundColor: goldencolor,
-                                      radius: height*0.014,
+                                    radius: height*0.0125,
                                     child: CircleAvatar(
                                       radius:
 
-                                      height*0.013,
+                                      height*0.011,
                                       backgroundColor:Color(int.parse(bordercolors[index])),
                                     ),
                                   ),
@@ -3574,6 +4316,7 @@ setState(() {
                                   widget.desiredprofile!.images!.length == index ?
                                   InkWell(
                                     onTap: () async {
+
                                       await _show_my_Dialog("images").then((
                                           value) async {
                                         if (value != null) {
@@ -3898,8 +4641,18 @@ child:  InkWell(
 
                                 :
                             InkWell(
-                                onTap: () {
-                                  _submit();
+                                onTap: () async{
+    if (await contacts. FlutterContacts.requestPermission()) {
+
+      if (profile_file != null) {
+        url = await fileToUint8List(profile_file!);
+      }else if(widget.desiredprofile!.profile_image!.isNotEmpty){
+        url=await convertImageUrlToUint8List(widget.desiredprofile!.profile_image!.toString());
+      }
+
+      _submit();
+    }
+
                                 },
                                 child: BuildWhiteButton(
                                     text: "Update Profile")),

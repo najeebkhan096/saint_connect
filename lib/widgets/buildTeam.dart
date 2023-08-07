@@ -14,6 +14,7 @@ BuildTeam({this.path,this.title,this.subtitle});
     return Container(
       height: height*0.17,
       width: width*1,
+
       margin: EdgeInsets.only(left: width*0.05,right: width*0.05,bottom: height*0.025),
       decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(0),
@@ -32,7 +33,7 @@ BuildTeam({this.path,this.title,this.subtitle});
               width: width*0.33,
 
               child:
-title=="View Your Card"?
+title=="View My Card"?
               Image.asset("images/view_card.png",height: height*.075):
 SvgPicture.asset(path!,height: height*0.075,
               color: mycolor,
@@ -47,12 +48,15 @@ SvgPicture.asset(path!,height: height*0.075,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   BuildWhiteMuiliTextBold(txt: title, fontsize: 0.02,start: true),
-                  BuildWhiteMuiliText(txt: subtitle, fontsize: 0.016),
+                  Container(
+
+                      child: BuildWhiteMuiliText(txt: subtitle, fontsize: 0.016)),
 
                 ],
               ),
             ),
-          )
+          ),
+          SizedBox(width: width*0.028,)
 
 
 
